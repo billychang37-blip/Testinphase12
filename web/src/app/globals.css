@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ocbc-red: #E81C24;
+  --color-ocbc-red-dark: #cc181f;
+  --color-soft-peach: #FFF5F5;
+  --color-warm-white: #FAFAFA;
+  --color-subtle-pink: #FFF0F0;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom Utilities */
+@utility text-gradient {
+  background: linear-gradient(90deg, #E81C24 0%, #FF6B6B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  /* The width of the content is doubled, so we move -50% to complete one full cycle of the unique items before seamlessly repeating */
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
