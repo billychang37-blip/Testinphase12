@@ -66,18 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading) return <div className="h-screen w-full flex items-center justify-center">Loading admin panel...</div>;
 
   return (
-    <div className="admin-mobile-scaler bg-gray-100 min-h-screen overflow-x-hidden">
-      <style dangerouslySetInnerHTML={{__html: `
-        @media (max-width: 1024px) {
-          .admin-mobile-scaler > div {
-            transform: scale(calc(100vw / 1024));
-            transform-origin: top left;
-            width: 1024px;
-            height: calc(100vh / (100vw / 1024));
-          }
-        }
-      `}} />
-      <div className="flex h-screen bg-gray-100 font-sans min-w-[1024px]">
+    <div className="flex h-screen bg-gray-100 font-sans min-w-[1024px] overflow-x-hidden">
       
       {/* Sidebar - Desktop */}
       <aside className="flex flex-col w-64 bg-[#2A2A2A] text-gray-300 h-full shadow-xl overflow-y-auto">
@@ -175,7 +164,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </aside>
         </div>
       )}
-    </div>
     </div>
   );
 }
