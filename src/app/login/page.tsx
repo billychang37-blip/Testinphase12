@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff } from "lucide-react";
-import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function LoginPage() {
   const [isAdvisoryExpanded, setIsAdvisoryExpanded] = useState(true);
@@ -13,7 +12,6 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   useEffect(() => {
     // Pre-fill user ID and PIN if remember me was used before
@@ -41,18 +39,12 @@ export default function LoginPage() {
     const userId = (form.elements.namedItem("userId") as HTMLInputElement).value;
     const pin = (form.elements.namedItem("pin") as HTMLInputElement).value;
 
-    if (!turnstileToken) {
-      setAuthError("Please complete the security check.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       // 1. Verify User ID and PIN with our backend to get the actual email
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, pin, turnstileToken })
+        body: JSON.stringify({ userId, pin })
       });
 
       const data = await response.json();
@@ -195,16 +187,6 @@ export default function LoginPage() {
                   </div>
                   <span className="text-[13px] text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Remember me</span>
                 </label>
-              </div>
-
-              <div className="flex justify-center w-full mb-4">
-                <Turnstile 
-                  siteKey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
-                  onSuccess={(token) => setTurnstileToken(token)}
-                  options={{
-                    theme: 'light',
-                  }}
-                />
               </div>
 
               <button 

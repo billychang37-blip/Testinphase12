@@ -10,29 +10,10 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { userId, pin, turnstileToken } = await request.json();
+    const { userId, pin } = await request.json();
 
     if (!userId || !pin) {
       return NextResponse.json({ error: 'User ID and PIN are required.' }, { status: 400 });
-    }
-
-    if (!turnstileToken) {
-      return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
-    }
-
-    // Verify Turnstile token with Cloudflare
-    const formData = new FormData();
-    formData.append('secret', process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY!);
-    formData.append('response', turnstileToken);
-
-    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      body: formData,
-      method: 'POST',
-    });
-
-    const outcome = await result.json();
-    if (!outcome.success) {
-      return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
     }
 
     // 1. Look up the user's actual email using the provided User ID (Access Code)
