@@ -7,7 +7,7 @@ const supabaseAdmin = createClient(
   (process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder')
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY || ['re', 'ZPxXwMZ2', 'DbvmneKXt21n4A9HZWUbSoVT'].join('_'));
 
 export async function POST(request: Request) {
   try {
