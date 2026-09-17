@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Send the custom highly-professional email
-    if (process.env.RESEND_API_KEY) {
+    try {
       const fullName = `${profile.first_name} ${profile.last_name}`.trim();
       const actionLink = linkData.properties?.action_link;
 
@@ -67,7 +67,7 @@ Security Alert: If you did not initiate this request, please ignore this email. 
 
 Important: This is an automated message. Please do not reply.
 (C) ${new Date().getFullYear()} Oversea-Chinese Banking Corporation Limited. Co. Reg. No.: 193200032W.`,
-        html: `<!DOCTYPE html>
+      html: `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -115,6 +115,8 @@ Important: This is an automated message. Please do not reply.
 </body>
 </html>`
       });
+    } catch (emailError) {
+      console.error('Failed to send forgot password email:', emailError);
     }
 
     return NextResponse.json({ success: true });

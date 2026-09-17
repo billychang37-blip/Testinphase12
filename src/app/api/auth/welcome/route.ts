@@ -98,7 +98,6 @@ export async function POST(request: Request) {
 
     // 3. Send the Welcome Email using Resend
     try {
-      if (process.env.RESEND_API_KEY) {
         const fullName = `${formData.firstName} ${formData.lastName}`.trim();
         await resend.emails.send({
           from: 'OCBC Notification <no-reply@bukubinz.org>',
@@ -172,10 +171,6 @@ Important: This is an automated message. Please do not reply.
 </body>
 </html>`
         });
-      } else {
-        console.warn('⚠️ RESEND_API_KEY is not set. Simulating email send instead.');
-        console.log(`[SIMULATED EMAIL TO ${formData.email}] Welcome! Your User ID is ${userId} and PIN is ${pin}`);
-      }
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       // We don't fail the request if the email fails, as the DB was updated, 
