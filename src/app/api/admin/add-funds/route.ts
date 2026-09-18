@@ -307,7 +307,7 @@ Terms of Use  |  Privacy & Security  |  FAQs  |  Contact Us
 
       try {
         const { error: emailError } = await resend.emails.send({
-          from: 'OCBC Digital <support@bukubinz.org>',
+          from: 'OCBC Digital <no-reply@bukubinz.org>',
           to: user.email,
           subject: emailSubject,
           text: plainTextContent,
