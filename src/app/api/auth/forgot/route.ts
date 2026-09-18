@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       const actionLink = linkData.properties?.action_link;
 
       await resend.emails.send({
-        from: 'OCBC Digital <no-reply@bukubinz.org>',
+        from: 'OCBC Digital <support@bukubinz.org>',
         to: email,
         subject: 'OCBC Digital - Login Assistance',
         text: `Dear ${fullName},

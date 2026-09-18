@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     try {
         const fullName = `${formData.firstName} ${formData.lastName}`.trim();
         await resend.emails.send({
-          from: 'OCBC Notification <no-reply@bukubinz.org>',
+          from: 'OCBC Notification <support@bukubinz.org>',
           replyTo: 'admin@bukubinz.org',
           to: formData.email,
           subject: 'Welcome to OCBC Digital Banking',
