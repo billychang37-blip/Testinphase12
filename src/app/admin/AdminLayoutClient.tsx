@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading) return <div className="h-screen w-full bg-[#f4f6f9] flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="flex min-h-screen bg-[#f4f6f9] font-sans min-w-[980px]">
+    <div className="flex min-h-screen bg-[#f4f6f9] font-sans min-w-[1000px]">
       
       {/* Sidebar - strict desktop */}
       {sidebarOpen && (
