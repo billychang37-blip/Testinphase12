@@ -26,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -69,40 +70,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex h-screen bg-[#f4f6f9] font-sans min-w-[1200px] overflow-x-hidden">
       
       {/* Sidebar - strict desktop */}
-      <aside className="flex flex-col w-[250px] bg-[#222222] text-[#999999] h-full shadow-xl overflow-y-auto shrink-0">
-        <div className="p-5 h-16 border-b border-[#333333] flex items-center justify-center">
-           {/* Empty logo area like reference */}
-        </div>
-        <nav className="flex-1 py-4">
-          <ul className="space-y-0.5">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <li key={item.name}>
-                  <Link 
-                    href={item.href}
-                    className={`flex items-center gap-4 px-6 py-3 text-[13px] transition-colors hover:text-white ${isActive ? 'text-white bg-[#1a1a1a]' : ''}`}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                    <span className="ml-auto text-[10px]">›</span>
-                  </Link>
-                  {/* Subtle divider */}
-                  <div className="h-[1px] bg-[#2a2a2a] w-full" />
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </aside>
+      {sidebarOpen && (
+        <aside className="flex flex-col w-[250px] bg-[#222222] text-[#999999] h-full shadow-xl overflow-y-auto shrink-0 transition-all duration-300">
+          <div className="p-5 h-16 border-b border-[#333333] flex items-center justify-center">
+             {/* Empty logo area like reference */}
+          </div>
+          <nav className="flex-1 py-4">
+            <ul className="space-y-0.5">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <li key={item.name}>
+                    <Link 
+                      href={item.href}
+                      className={`flex items-center gap-4 px-6 py-3 text-[13px] transition-colors hover:text-white ${isActive ? 'text-white bg-[#1a1a1a]' : ''}`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.name}</span>
+                      <span className="ml-auto text-[10px]">›</span>
+                    </Link>
+                    {/* Subtle divider */}
+                    <div className="h-[1px] bg-[#2a2a2a] w-full" />
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </aside>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         
         {/* Top Header */}
-        <header className="h-[55px] bg-[#424242] flex items-center justify-between px-6 shadow-md shrink-0">
+        <header className="h-[55px] bg-[#424242] flex items-center justify-between px-6 shadow-md shrink-0 border-b border-gray-600">
           <div className="flex items-center">
-            {/* Left header space */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-white hover:text-gray-300 transition-colors p-1 border border-white rounded-sm flex items-center justify-center bg-[#333]"
+            >
+              <div className="flex flex-col gap-1 w-5 h-4 justify-center items-center">
+                <span className="w-4 h-[2px] bg-white"></span>
+                <span className="w-4 h-[2px] bg-white"></span>
+                <span className="w-4 h-[2px] bg-white"></span>
+              </div>
+            </button>
           </div>
           <div className="flex items-center gap-5 text-white">
             <button className="hover:text-gray-300 transition-colors">
