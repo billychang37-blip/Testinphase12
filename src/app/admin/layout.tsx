@@ -2,8 +2,8 @@ import type { Viewport } from 'next';
 import AdminLayoutClient from './AdminLayoutClient';
 
 export const viewport: Viewport = {
-  width: 1024,
-  initialScale: 0.4,
+  width: 1200,
+  initialScale: 0.3,
   maximumScale: 5,
 };
 
