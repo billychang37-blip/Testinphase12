@@ -11,6 +11,7 @@ export default function AdminProfilePage() {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("/admin-avatar.png");
   const [message, setMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
@@ -18,10 +19,11 @@ export default function AdminProfilePage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       
-      const { data } = await supabase.from('profiles').select('first_name, email').eq('id', session.user.id).single();
+      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
       if (data) {
         setUsername(data.first_name || "admin");
         setEmail(data.email || session.user.email || "");
+        if (data.avatar_url) setAvatarUrl(data.avatar_url);
       }
       setLoading(false);
     };
@@ -53,10 +55,15 @@ export default function AdminProfilePage() {
 
       // Update Profile Table
       const { error: profileError } = await supabase.from('profiles')
-        .update({ first_name: username, email: email })
+        .update({ first_name: username, email: email, avatar_url: avatarUrl !== '/admin-avatar.png' ? avatarUrl : null })
         .eq('id', session.user.id);
         
-      if (profileError) throw profileError;
+      if (profileError) {
+        if (profileError.code === '42703') {
+           throw new Error("Please run the SQL script to create the 'avatar_url' column in the profiles table.");
+        }
+        throw profileError;
+      }
 
       setMessage({ text: "Profile updated successfully!", type: "success" });
       setNewPassword("");
@@ -90,17 +97,35 @@ export default function AdminProfilePage() {
               style={{ borderBottomRightRadius: '120px' }}
             >
               <div className="p-4 bg-[#2196F3]">
-                <div className="bg-white w-full aspect-square border-4 border-[#2196F3] relative">
-                  {/* Default avatar image */}
+                <div className="bg-white w-full aspect-square border-4 border-[#2196F3] relative overflow-hidden">
                   <img 
-                    src="/admin-avatar.png" 
+                    src={avatarUrl} 
                     alt="Admin Avatar"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
               <div className="pb-16 pt-2 text-center relative z-10">
-                <button className="text-white text-sm font-semibold hover:underline bg-transparent outline-none">
+                <input 
+                  type="file" 
+                  id="avatarUpload" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setAvatarUrl(reader.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => document.getElementById('avatarUpload')?.click()}
+                  className="text-white text-sm font-semibold hover:underline bg-transparent outline-none"
+                >
                   Upload a Photo
                 </button>
               </div>
