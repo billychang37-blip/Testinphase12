@@ -19,6 +19,7 @@ export default function AdminDashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [showToast, setShowToast] = useState(true);
+  const [adminName, setAdminName] = useState("Admin");
 
   // Standard display list
   const assetOrder = [
@@ -37,17 +38,28 @@ export default function AdminDashboardPage() {
   ];
 
   useEffect(() => {
-    // Play voice greeting on mount
-    try {
-      const msg = new SpeechSynthesisUtterance("Good morning Admin, it's good to have you today.");
-      msg.rate = 0.9;
-      window.speechSynthesis.speak(msg);
-    } catch (e) {
-      console.log("SpeechSynthesis not supported or blocked");
-    }
-
     const fetchDashboardData = async () => {
       try {
+        // Fetch Admin Profile for Welcome Message
+        const { data: { session } } = await supabase.auth.getSession();
+        let name = "Admin";
+        if (session) {
+          const { data: profile } = await supabase.from('profiles').select('first_name').eq('id', session.user.id).single();
+          if (profile?.first_name) {
+            name = profile.first_name;
+            setAdminName(name);
+          }
+        }
+
+        // Play voice greeting on mount
+        try {
+          const msg = new SpeechSynthesisUtterance(`Good morning ${name}, it's good to have you today.`);
+          msg.rate = 0.9;
+          window.speechSynthesis.speak(msg);
+        } catch (e) {
+          console.log("SpeechSynthesis not supported or blocked");
+        }
+
         const res = await fetch('/api/admin/dashboard', { cache: 'no-store' });
         const data = await res.json();
         
@@ -187,7 +199,7 @@ export default function AdminDashboardPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 bg-white border border-gray-200 shadow-xl rounded-sm flex items-start gap-3 px-6 py-4 z-50 w-max max-w-full animate-in slide-in-from-top-4">
           <span className="text-yellow-500 text-2xl">👋</span>
           <div className="text-left pr-8">
-            <p className="text-[15px] font-bold text-gray-700">Good Morning, Admin. It's Good</p>
+            <p className="text-[15px] font-bold text-gray-700">Good Morning, {adminName}. It's Good</p>
             <p className="text-[15px] font-bold text-gray-700 text-center">To Have You Today.</p>
           </div>
           <button onClick={() => setShowToast(false)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 p-1">
