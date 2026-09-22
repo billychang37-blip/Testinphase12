@@ -55,9 +55,9 @@ export default function AdminDashboardPage() {
           const users = data.users;
           let active = 0, blocked = 0, suspended = 0;
           users.forEach((u: any) => {
-            if (u.kyc_status === 'approved') active++;
-            else if (u.kyc_status === 'rejected') blocked++;
-            else suspended++;
+            if (u.status === 'blocked') blocked++;
+            else if (u.status === 'suspended') suspended++;
+            else active++; // Default to active
           });
           
           setStats({
@@ -67,32 +67,57 @@ export default function AdminDashboardPage() {
             suspendedUsers: suspended
           });
 
+          const getFlagEmoji = (countryCode: string) => {
+            if (!countryCode) return '';
+            const codePoints = countryCode
+              .toUpperCase()
+              .split('')
+              .map(char => 127397 + char.charCodeAt(0));
+            return String.fromCodePoint(...codePoints);
+          };
+
+          const getCountryName = (countryCode: string) => {
+            if (!countryCode) return '';
+            try {
+              const regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
+              return regionNames.of(countryCode);
+            } catch (e) {
+              return countryCode;
+            }
+          };
+
           // Show real active users based on last_active_at if it exists, otherwise fallback to recent users
           const activeUsers = users
             .filter((u: any) => u.last_ip || u.last_active_at)
             .sort((a: any, b: any) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
           
-          // If no one has real IPs yet (before SQL script runs), show the newest 5 users as a fallback
           const displayUsers = activeUsers.length > 0 ? activeUsers.slice(0, 10) : users.slice(0, 5);
 
           const formattedOnline = displayUsers.map((u: any) => {
-            let status = "Online";
+            let status = "Active";
             let lastSeen = "Just now";
             
             if (u.last_active_at) {
               const minutesAgo = Math.floor((new Date().getTime() - new Date(u.last_active_at).getTime()) / 60000);
               if (minutesAgo > 60) {
-                status = "Away";
+                status = "Idle";
                 lastSeen = `${Math.floor(minutesAgo/60)} hours ago`;
               } else if (minutesAgo > 5) {
                 status = "Idle";
                 lastSeen = `${minutesAgo} mins ago`;
               }
+            } else {
+              status = "Idle";
             }
             
+            const flag = getFlagEmoji(u.last_country || '');
+            const countryName = getCountryName(u.last_country || '');
+            const locationString = u.last_country ? `${flag} ${countryName}` : '';
+
             return {
               ...u,
               ip: u.last_ip || "Unknown (Waiting for login)",
+              location: locationString,
               statusText: status,
               lastSeen: lastSeen
             };
@@ -336,10 +361,13 @@ export default function AdminDashboardPage() {
                 <tr key={u.id} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'} border-b border-gray-100 text-gray-600 text-[13px] font-semibold`}>
                   <td className="px-5 py-3">{u.first_name} {u.last_name}</td>
                   <td className="px-5 py-3">{u.email}</td>
-                  <td className="px-5 py-3 font-mono text-blue-600">{u.ip}</td>
+                  <td className="px-5 py-3 font-mono text-blue-600">
+                    <div>{u.ip}</div>
+                    {u.location && <div className="text-xs text-gray-500 font-sans mt-0.5">{u.location}</div>}
+                  </td>
                   <td className="px-5 py-3">
-                    <span className="flex items-center gap-2 text-green-600">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span className={`flex items-center gap-2 ${u.statusText === 'Active' ? 'text-green-600' : 'text-gray-500'}`}>
+                      <span className={`w-2 h-2 rounded-full ${u.statusText === 'Active' ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></span>
                       {u.statusText}
                     </span>
                   </td>

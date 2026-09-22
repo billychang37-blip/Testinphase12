@@ -39,10 +39,12 @@ export async function POST(request: Request) {
     const forwardedFor = request.headers.get('x-forwarded-for');
     const realIp = request.headers.get('x-real-ip');
     const userIp = forwardedFor ? forwardedFor.split(',')[0] : (realIp || 'Unknown IP');
+    const vercelCountry = request.headers.get('x-vercel-ip-country') || '';
 
     // Fire and forget the IP update (no need to block the login response on it)
     supabaseAdmin.from('profiles').update({
       last_ip: userIp,
+      last_country: vercelCountry,
       last_active_at: new Date().toISOString()
     }).eq('generated_user_id', userId).then(({ error }) => {
       if (error) console.error("Failed to update IP:", error);

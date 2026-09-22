@@ -25,11 +25,37 @@ export default function IPConfigPage() {
     fetchUsers();
   }, []);
 
+  const getFlagEmoji = (countryCode: string) => {
+    if (!countryCode) return '';
+    const codePoints = countryCode
+      .toUpperCase()
+      .split('')
+      .map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  };
+
+  const getCountryName = (countryCode: string) => {
+    if (!countryCode) return '';
+    try {
+      const regionNames = new Intl.DisplayNames(['en'], {type: 'region'});
+      return regionNames.of(countryCode);
+    } catch (e) {
+      return countryCode;
+    }
+  };
+
   const filteredUsers = users.filter((u) => 
     (u.first_name || "").toLowerCase().includes(search.toLowerCase()) ||
     (u.email || "").toLowerCase().includes(search.toLowerCase()) ||
     (u.last_ip || "").includes(search)
-  );
+  ).map(u => {
+    const flag = getFlagEmoji(u.last_country || '');
+    const countryName = getCountryName(u.last_country || '');
+    return {
+      ...u,
+      location: u.last_country ? `${flag} ${countryName}` : ''
+    };
+  });
 
   return (
     <div className="w-full animate-in fade-in duration-300 max-w-5xl">
@@ -57,33 +83,64 @@ export default function IPConfigPage() {
         <table className="w-full text-left border-collapse bg-white">
           <thead>
             <tr className="bg-[#f0f2f5] border-y border-gray-200 text-gray-500 text-[11px] font-bold tracking-wider">
-              <th className="px-5 py-3 w-1/4">USER</th>
+              <th className="px-5 py-3 w-1/5">USER</th>
               <th className="px-5 py-3 w-1/4">EMAIL</th>
               <th className="px-5 py-3 w-1/4">LAST KNOWN IP</th>
-              <th className="px-5 py-3 w-1/4">STATUS</th>
+              <th className="px-5 py-3 w-[15%]">STATUS</th>
+              <th className="px-5 py-3 w-[15%] text-right">ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-500">Loading data...</td></tr>
+              <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-500">Loading data...</td></tr>
             ) : filteredUsers.length === 0 ? (
-              <tr><td colSpan={4} className="px-5 py-8 text-center text-sm text-gray-500">No records found.</td></tr>
+              <tr><td colSpan={5} className="px-5 py-8 text-center text-sm text-gray-500">No records found.</td></tr>
             ) : (
               filteredUsers.map((u, idx) => (
                 <tr key={u.id} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'} border-b border-gray-100 text-gray-600 text-[13px] font-semibold hover:bg-gray-50 transition-colors`}>
                   <td className="px-5 py-4">{u.first_name} {u.last_name}</td>
                   <td className="px-5 py-4 text-gray-500">{u.email}</td>
-                  <td className="px-5 py-4 font-mono text-blue-600 font-bold">{u.last_ip || "Unknown (Waiting for login)"}</td>
+                  <td className="px-5 py-4 font-mono text-blue-600 font-bold">
+                    <div>{u.last_ip || "Unknown (Waiting for login)"}</div>
+                    {u.location && <div className="text-xs text-gray-500 font-sans mt-0.5">{u.location}</div>}
+                  </td>
                   <td className="px-5 py-4">
                     {u.status === 'blocked' ? (
                       <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold flex items-center w-max gap-1">
                         <ShieldAlert className="w-3 h-3" /> Blocked
+                      </span>
+                    ) : u.status === 'suspended' ? (
+                      <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold flex items-center w-max gap-1">
+                        <ShieldAlert className="w-3 h-3" /> Suspended
                       </span>
                     ) : (
                       <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold flex items-center w-max gap-1">
                         <CheckCircle className="w-3 h-3" /> Active
                       </span>
                     )}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <select 
+                      className="text-xs border border-gray-300 rounded px-2 py-1 outline-none bg-white"
+                      value={u.status || 'active'}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value;
+                        setUsers(users.map(user => user.id === u.id ? { ...user, status: newStatus } : user));
+                        try {
+                          await fetch('/api/admin/users/status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: u.id, status: newStatus })
+                          });
+                        } catch (err) {
+                          console.error("Failed to update status", err);
+                        }
+                      }}
+                    >
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspend</option>
+                      <option value="blocked">Block (Ban)</option>
+                    </select>
                   </td>
                 </tr>
               ))
