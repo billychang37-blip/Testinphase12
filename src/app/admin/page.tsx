@@ -13,17 +13,17 @@ export default function AdminDashboardPage() {
   });
 
   const [txStats, setTxStats] = useState({
-    ethDeposit: 0.017,
-    ethWithdraw: 0.00,
-    usdtDeposit: 15704560.42,
-    usdtWithdraw: 0.00,
+    ethDeposit: 0,
+    ethWithdraw: 0,
+    usdtDeposit: 0,
+    usdtWithdraw: 0,
     
-    ethMonthDeposit: 224,
-    ethMonthWithdraw: 13.7168,
-    usdtMonthDeposit: 1489674071.34,
-    usdtMonthWithdraw: 11097692.11,
-    bnbMonthDeposit: 0.0543,
-    bnbMonthWithdraw: 0.00
+    ethMonthDeposit: 0,
+    ethMonthWithdraw: 0,
+    usdtMonthDeposit: 0,
+    usdtMonthWithdraw: 0,
+    bnbMonthDeposit: 0,
+    bnbMonthWithdraw: 0
   });
 
   const [loading, setLoading] = useState(true);
@@ -52,10 +52,64 @@ export default function AdminDashboardPage() {
         });
         
         setStats({
-          totalUsers: users.length || 196, 
-          activeUsers: active || 195,
-          blockedUsers: blocked || 0,
-          suspendedUsers: suspended || 1
+          totalUsers: users.length, 
+          activeUsers: active,
+          blockedUsers: blocked,
+          suspendedUsers: suspended
+        });
+      }
+
+      // Fetch transactions
+      const { data: txs } = await supabase.from('transactions').select('type, amount, status, created_at, wallet_used');
+      if (txs) {
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+        let ethD = 0, ethW = 0, usdtD = 0, usdtW = 0;
+        let ethMD = 0, ethMW = 0, usdtMD = 0, usdtMW = 0, bnbMD = 0, bnbMW = 0;
+
+        txs.forEach(tx => {
+          const txTime = new Date(tx.created_at).getTime();
+          const amt = Number(tx.amount) || 0;
+          const isToday = txTime >= startOfDay;
+          const isThisMonth = txTime >= startOfMonth;
+          const wallet = (tx.wallet_used || '').toLowerCase();
+
+          if (tx.type === 'deposit') {
+            if (wallet.includes('eth') || wallet.includes('ethereum')) {
+              if (isToday) ethD += amt;
+              if (isThisMonth) ethMD += amt;
+            } else if (wallet.includes('usdt') || wallet.includes('tether')) {
+              if (isToday) usdtD += amt;
+              if (isThisMonth) usdtMD += amt;
+            } else if (wallet.includes('bnb')) {
+              if (isThisMonth) bnbMD += amt;
+            }
+          } else if (tx.type === 'transfer' || tx.type === 'crypto_transfer') {
+            if (wallet.includes('eth') || wallet.includes('ethereum')) {
+              if (isToday) ethW += amt;
+              if (isThisMonth) ethMW += amt;
+            } else if (wallet.includes('usdt') || wallet.includes('tether')) {
+              if (isToday) usdtW += amt;
+              if (isThisMonth) usdtMW += amt;
+            } else if (wallet.includes('bnb')) {
+              if (isThisMonth) bnbMW += amt;
+            }
+          }
+        });
+
+        setTxStats({
+          ethDeposit: ethD,
+          ethWithdraw: ethW,
+          usdtDeposit: usdtD,
+          usdtWithdraw: usdtW,
+          ethMonthDeposit: ethMD,
+          ethMonthWithdraw: ethMW,
+          usdtMonthDeposit: usdtMD,
+          usdtMonthWithdraw: usdtMW,
+          bnbMonthDeposit: bnbMD,
+          bnbMonthWithdraw: bnbMW
         });
       }
 
