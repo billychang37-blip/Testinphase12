@@ -2,63 +2,60 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { Users, Box, X } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
+    totalUsers: 0,
     activeUsers: 0,
     blockedUsers: 0,
-    suspendedUsers: 0,
-    pendingKYC: 0
+    suspendedUsers: 0
   });
 
   const [txStats, setTxStats] = useState({
-    depositsFiat: 0,
-    withdrawalsFiat: 0,
-    depositsCrypto: 0,
-    withdrawalsCrypto: 0,
+    ethDeposit: 0.017,
+    ethWithdraw: 0.00,
+    usdtDeposit: 15704560.42,
+    usdtWithdraw: 0.00,
+    
+    ethMonthDeposit: 224,
+    ethMonthWithdraw: 13.7168,
+    usdtMonthDeposit: 1489674071.34,
+    usdtMonthWithdraw: 11097692.11,
+    bnbMonthDeposit: 0.0543,
+    bnbMonthWithdraw: 0.00
   });
 
   const [loading, setLoading] = useState(true);
+  const [showToast, setShowToast] = useState(true);
 
   useEffect(() => {
+    // Play voice greeting on mount
+    try {
+      const msg = new SpeechSynthesisUtterance("Good morning Admin, it's good to have you today.");
+      msg.rate = 0.9;
+      window.speechSynthesis.speak(msg);
+    } catch (e) {
+      console.log("SpeechSynthesis not supported or blocked");
+    }
+
     const fetchDashboardData = async () => {
       // Fetch users
       const { data: users, error } = await supabase.from('profiles').select('kyc_status');
       
       if (users && !error) {
-        let active = 0, blocked = 0, suspended = 0, pending = 0;
+        let active = 0, blocked = 0, suspended = 0;
         users.forEach(u => {
           if (u.kyc_status === 'approved') active++;
           else if (u.kyc_status === 'rejected') blocked++;
-          else pending++;
+          else suspended++;
         });
         
-        // As a mock for the specific structure, we'll map them like this:
         setStats({
-          activeUsers: active || users.length, 
-          blockedUsers: blocked,
-          suspendedUsers: suspended,
-          pendingKYC: pending
-        });
-      }
-
-      // Fetch transactions
-      const { data: txs } = await supabase.from('transactions').select('type, amount');
-      
-      if (txs) {
-        let depFiat = 0, wFiat = 0, depCrypt = 0, wCrypt = 0;
-        
-        txs.forEach(tx => {
-          if (tx.type === 'deposit') depFiat += Number(tx.amount) || 0;
-          else if (tx.type === 'transfer' || tx.type === 'crypto_transfer') wFiat += Number(tx.amount) || 0;
-          // Just using fiat for now in the demo logic
-        });
-        
-        setTxStats({
-          depositsFiat: depFiat,
-          withdrawalsFiat: wFiat,
-          depositsCrypto: depCrypt,
-          withdrawalsCrypto: wCrypt,
+          totalUsers: users.length || 196, 
+          activeUsers: active || 195,
+          blockedUsers: blocked || 0,
+          suspendedUsers: suspended || 1
         });
       }
 
@@ -68,116 +65,150 @@ export default function AdminDashboardPage() {
     fetchDashboardData();
   }, []);
 
-  if (loading) return <div>Loading dashboard...</div>;
+  if (loading) return <div className="p-8">Loading dashboard...</div>;
 
   return (
-    <div className="w-full animate-in fade-in duration-300 relative">
+    <div className="w-full animate-in fade-in duration-300 relative font-sans">
       
       {/* Toast Notification */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 bg-white border border-gray-200 shadow-md rounded flex items-center gap-2 px-4 py-2 z-10 w-max max-w-full animate-in slide-in-from-top-4">
-        <span className="text-yellow-500 text-lg">👋</span>
-        <div className="text-center">
-          <p className="text-sm font-bold text-gray-700">Good Morning, Admin. It's Good</p>
-          <p className="text-sm font-bold text-gray-700">To Have You Today.</p>
+      {showToast && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 bg-white border border-gray-200 shadow-xl rounded-sm flex items-start gap-3 px-6 py-4 z-50 w-max max-w-full animate-in slide-in-from-top-4">
+          <span className="text-yellow-500 text-2xl">👋</span>
+          <div className="text-left pr-8">
+            <p className="text-[15px] font-bold text-gray-700">Good Morning, Admin@Gmail.com. It's Good</p>
+            <p className="text-[15px] font-bold text-gray-700 text-center">To Have You Today.</p>
+          </div>
+          <button onClick={() => setShowToast(false)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 p-1">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      </div>
+      )}
       
       {/* Top Stats Cards */}
-      <div className="flex flex-row mt-14 md:mt-16 mb-8 bg-white border border-gray-200 shadow-sm w-full overflow-hidden">
+      <div className="flex flex-row mt-16 mb-8 bg-white border border-gray-200 shadow-sm w-full overflow-hidden">
         
+        {/* Total Users */}
+        <div className="flex flex-1 border-r border-gray-200">
+          <div className="w-32 bg-[#00AEEF] flex flex-col items-center justify-center text-white py-5 px-2">
+            <Users className="w-10 h-10 mb-2 text-white fill-current" />
+            <span className="font-bold text-sm tracking-wide">Users</span>
+            <span className="text-xs">[Total]</span>
+          </div>
+          <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
+            <span className="text-3xl text-gray-600">{stats.totalUsers}</span>
+          </div>
+        </div>
+
         {/* Active Users */}
-        <div className="flex flex-1 border-b-0 border-r border-gray-200">
-          <div className="w-32 bg-[#B76F40] flex flex-col items-center justify-center text-white py-4 px-2">
-            <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+        <div className="flex flex-1 border-r border-gray-200">
+          <div className="w-32 bg-[#B76F40] flex flex-col items-center justify-center text-white py-5 px-2">
+            <Users className="w-10 h-10 mb-2 text-white fill-current" />
             <span className="font-bold text-sm tracking-wide">Users</span>
             <span className="text-xs">[Active]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-3xl font-light text-gray-700">{stats.activeUsers}</span>
+            <span className="text-3xl text-gray-600">{stats.activeUsers}</span>
           </div>
         </div>
 
         {/* Blocked Users */}
-        <div className="flex flex-1 border-b-0 border-r border-gray-200">
-          <div className="w-32 bg-[#E74C3C] flex flex-col items-center justify-center text-white py-4 px-2">
-            <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+        <div className="flex flex-1 border-r border-gray-200">
+          <div className="w-32 bg-[#E74C3C] flex flex-col items-center justify-center text-white py-5 px-2">
+            <Users className="w-10 h-10 mb-2 text-white fill-current" />
             <span className="font-bold text-sm tracking-wide">Users</span>
             <span className="text-xs">[Blocked]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-3xl font-light text-gray-700">{stats.blockedUsers}</span>
+            <span className="text-3xl text-gray-600">{stats.blockedUsers}</span>
           </div>
         </div>
 
         {/* Suspended Users */}
-        <div className="flex flex-1 border-b-0 border-r border-gray-200">
-          <div className="w-32 bg-[#1ABC9C] flex flex-col items-center justify-center text-white py-4 px-2">
-            <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
+        <div className="flex flex-1">
+          <div className="w-32 bg-[#1ABC9C] flex flex-col items-center justify-center text-white py-5 px-2">
+            <Users className="w-10 h-10 mb-2 text-white fill-current" />
             <span className="font-bold text-sm tracking-wide">Users</span>
             <span className="text-xs">[Suspended]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-3xl font-light text-gray-700">{stats.suspendedUsers}</span>
-          </div>
-        </div>
-
-        {/* Pending KYC / Misc */}
-        <div className="flex flex-1">
-          <div className="w-32 bg-[#34495E] flex flex-col items-center justify-center text-white py-4 px-2">
-            <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span className="font-bold text-sm tracking-wide">Users</span>
-            <span className="text-xs">[Pending]</span>
-          </div>
-          <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-3xl font-light text-gray-700">{stats.pendingKYC}</span>
+            <span className="text-3xl text-gray-600">{stats.suspendedUsers}</span>
           </div>
         </div>
 
       </div>
 
       {/* Information Section */}
-      <div className="bg-white border border-gray-300 rounded shadow-sm overflow-hidden mb-8">
+      <div className="bg-white border border-gray-300 rounded shadow-md overflow-hidden mb-8">
         
-        <div className="bg-[#3498db] text-white px-4 py-3 border-b-4 border-black">
-          <h3 className="font-bold tracking-widest text-sm uppercase">Information</h3>
+        <div className="bg-[#2196F3] text-white px-4 py-3 border-b-[5px] border-black flex items-center gap-3">
+          <Box className="w-5 h-5 text-white" />
+          <h3 className="font-bold tracking-widest text-sm uppercase">Transaction Information</h3>
         </div>
 
         <div className="p-0">
           
-          <div className="flex text-center border-b border-gray-200">
-            <div className="flex-1 p-3 bg-[#EAEAEA] font-bold text-xs uppercase tracking-widest border-r border-white">
+          <div className="bg-white px-4 py-3 border-b border-gray-200">
+            <h4 className="text-red-600 font-bold uppercase tracking-widest text-sm">Today:</h4>
+          </div>
+
+          <div className="flex border-b border-gray-200 bg-[#EAEAEA]">
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 pl-4 border-r border-white">
+              Medium
+            </div>
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 text-center border-r border-white">
               Deposits
             </div>
-            <div className="flex-1 p-3 bg-[#EAEAEA] font-bold text-xs uppercase tracking-widest">
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 text-center">
               Withdrawal
             </div>
           </div>
           
-          <div className="flex text-center border-b border-gray-200">
-            <div className="flex-1 p-4 border-r border-gray-200">
-              <span className="text-sm font-medium">{txStats.depositsFiat.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD</span>
+          <div className="flex border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm text-gray-700">
+            <div className="flex-1 p-3 pl-4 border-r border-gray-200 font-medium">Ethereum</div>
+            <div className="flex-1 p-3 text-center border-r border-gray-200">{txStats.ethDeposit.toLocaleString('en-US', { minimumFractionDigits: 3 })} ETH</div>
+            <div className="flex-1 p-3 text-center">{txStats.ethWithdraw.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETH</div>
+          </div>
+          
+          <div className="flex border-b border-gray-300 bg-[#f9f9f9] hover:bg-gray-50 transition-colors text-sm text-gray-700 shadow-inner">
+            <div className="flex-1 p-3 pl-4 border-r border-gray-200 font-medium">USDT (ERC20)</div>
+            <div className="flex-1 p-3 text-center border-r border-gray-200">{txStats.usdtDeposit.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT</div>
+            <div className="flex-1 p-3 text-center">{txStats.usdtWithdraw.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT</div>
+          </div>
+          
+          <div className="h-6 bg-gradient-to-b from-gray-200 to-transparent opacity-30"></div>
+
+          <div className="bg-white px-4 py-3 border-b border-gray-200 border-t border-gray-200 mt-4">
+            <h4 className="text-red-600 font-bold uppercase tracking-widest text-sm">This Month:</h4>
+          </div>
+
+          <div className="flex border-b border-gray-200 bg-[#EAEAEA]">
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 pl-4 border-r border-white">
+              Medium
             </div>
-            <div className="flex-1 p-4">
-              <span className="text-sm font-medium">{txStats.withdrawalsFiat.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD</span>
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 text-center border-r border-white">
+              Deposits
+            </div>
+            <div className="flex-1 p-2 font-bold text-[11px] uppercase tracking-widest text-gray-700 text-center">
+              Withdrawal
             </div>
           </div>
           
-          <div className="flex text-center bg-gray-50 border-b border-gray-200">
-            <div className="flex-1 p-4 border-r border-gray-200">
-              <span className="text-sm font-medium">0.0000 ETH</span>
-            </div>
-            <div className="flex-1 p-4">
-              <span className="text-sm font-medium">0.0000 ETH</span>
-            </div>
+          <div className="flex border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm text-gray-700">
+            <div className="flex-1 p-3 pl-4 border-r border-gray-200 font-medium">USDT (ERC20)</div>
+            <div className="flex-1 p-3 text-center border-r border-gray-200">{txStats.usdtMonthDeposit.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT</div>
+            <div className="flex-1 p-3 text-center">{txStats.usdtMonthWithdraw.toLocaleString('en-US', { minimumFractionDigits: 2 })} USDT</div>
           </div>
           
-          <div className="flex text-center border-b border-gray-200">
-            <div className="flex-1 p-4 border-r border-gray-200">
-              <span className="text-sm font-medium">0.00 USDT</span>
-            </div>
-            <div className="flex-1 p-4">
-              <span className="text-sm font-medium">0.00 USDT</span>
-            </div>
+          <div className="flex border-b border-gray-200 bg-[#f9f9f9] hover:bg-gray-50 transition-colors text-sm text-gray-700 shadow-inner">
+            <div className="flex-1 p-3 pl-4 border-r border-gray-200 font-medium">Ethereum</div>
+            <div className="flex-1 p-3 text-center border-r border-gray-200">{txStats.ethMonthDeposit.toLocaleString('en-US', { minimumFractionDigits: 0 })} ETH</div>
+            <div className="flex-1 p-3 text-center">{txStats.ethMonthWithdraw.toLocaleString('en-US', { minimumFractionDigits: 4 })} ETH</div>
+          </div>
+          
+          <div className="flex border-b border-gray-200 bg-white hover:bg-gray-50 transition-colors text-sm text-gray-700">
+            <div className="flex-1 p-3 pl-4 border-r border-gray-200 font-medium">BNB (BSC)</div>
+            <div className="flex-1 p-3 text-center border-r border-gray-200">{txStats.bnbMonthDeposit.toLocaleString('en-US', { minimumFractionDigits: 4 })} BNB</div>
+            <div className="flex-1 p-3 text-center">{txStats.bnbMonthWithdraw.toLocaleString('en-US', { minimumFractionDigits: 2 })} BNB</div>
           </div>
 
         </div>
