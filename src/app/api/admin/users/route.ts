@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     // For now, we use the service role key to fetch all users bypassing RLS.
     const { data: users, error } = await supabaseAdmin
       .from('profiles')
-      .select('id, first_name, last_name, email, wallet_balance, btc_balance, eth_balance, usdt_balance, usdc_balance, usdt_erc20_balance, usdt_trc20_balance, usdt_bep20_balance, usdc_solana_balance, usdc_bep20_balance, account_number, currency')
+      .select('*')
       .order('first_name');
 
     if (error) {

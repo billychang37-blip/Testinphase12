@@ -52,9 +52,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     checkAdmin();
   }, [router]);
 
+  const [openMenus, setOpenMenus] = useState<string[]>(['Manage Members']);
+
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Manage Members", href: "/admin/members", icon: Users },
+    { 
+      name: "Manage Members", 
+      icon: Users,
+      subItems: [
+        { name: "Manage Admin Profile", href: "/admin/profile" },
+        { name: "Add New Users", href: "/admin/members/add" },
+        { name: "Manage Users", href: "/admin/members" },
+      ]
+    },
     { name: "KYC Applications", href: "/admin/kyc", icon: FileCheck },
     { name: "Fund Accounts", href: "/admin/add-funds", icon: PlusCircle },
     { name: "Manage Deposits", href: "/admin/deposits", icon: ArrowDownToLine },
@@ -66,6 +76,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   if (loading) return <div className="h-screen w-full bg-[#f4f6f9] flex items-center justify-center">Loading...</div>;
+
+  const toggleMenu = (name: string) => {
+    setOpenMenus(prev => prev.includes(name) ? prev.filter(m => m !== name) : [...prev, name]);
+  };
 
   return (
     <div className="flex min-h-screen bg-[#f4f6f9] font-sans min-w-[980px]">
@@ -79,17 +93,48 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <nav className="flex-1 py-4">
             <ul className="space-y-0.5">
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = item.href ? pathname === item.href : false;
+                const isSubOpen = openMenus.includes(item.name);
+                const hasSub = !!item.subItems;
+
                 return (
                   <li key={item.name}>
-                    <Link 
-                      href={item.href}
-                      className={`flex items-center gap-4 px-6 py-3 text-[13px] transition-colors hover:text-white ${isActive ? 'text-white bg-[#1a1a1a]' : ''}`}
-                    >
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.name}</span>
-                      <span className="ml-auto text-[10px]">›</span>
-                    </Link>
+                    {hasSub ? (
+                      <button 
+                        onClick={() => toggleMenu(item.name)}
+                        className={`w-full flex items-center gap-4 px-6 py-3 text-[13px] transition-colors hover:text-white ${isSubOpen ? 'text-white bg-[#1a1a1a]' : ''}`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                        <span className="ml-auto text-[10px]">{isSubOpen ? 'v' : '›'}</span>
+                      </button>
+                    ) : (
+                      <Link 
+                        href={item.href!}
+                        className={`flex items-center gap-4 px-6 py-3 text-[13px] transition-colors hover:text-white ${isActive ? 'text-white bg-[#1a1a1a]' : ''}`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                        <span className="ml-auto text-[10px]">›</span>
+                      </Link>
+                    )}
+                    
+                    {/* Submenu */}
+                    {hasSub && isSubOpen && (
+                      <ul className="bg-[#1a1a1a] py-2">
+                        {item.subItems!.map(sub => (
+                          <li key={sub.name}>
+                            <Link 
+                              href={sub.href}
+                              className={`block px-12 py-2.5 text-[12px] transition-colors hover:text-white ${pathname === sub.href ? 'text-white' : 'text-[#999999]'}`}
+                            >
+                              {sub.name}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
                     {/* Subtle divider */}
                     <div className="h-[1px] bg-[#2a2a2a] w-full" />
                   </li>
