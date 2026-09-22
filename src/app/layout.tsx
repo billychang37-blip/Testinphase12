@@ -38,7 +38,7 @@ export default function RootLayout({
         <script type="text/javascript" dangerouslySetInnerHTML={{
           __html: `
 var _smartsupp = _smartsupp || {};
-_smartsupp.key = '6f996554f2b901c2cc0dca358ba3602086bbaad0';
+_smartsupp.key = 'cc8457e63c068e071fc1ba27561b5109d2f2c379';
 window.smartsupp||(function(d) {
   var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
   s=d.getElementsByTagName('script')[0];c=d.createElement('script');
