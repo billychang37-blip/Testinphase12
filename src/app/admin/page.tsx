@@ -47,43 +47,61 @@ export default function AdminDashboardPage() {
     }
 
     const fetchDashboardData = async () => {
-      // Fetch users
-      const { data: users, error } = await supabase.from('profiles').select('id, first_name, last_name, email, kyc_status, created_at, status');
-      
-      if (users && !error) {
-        let active = 0, blocked = 0, suspended = 0;
-        users.forEach(u => {
-          if (u.kyc_status === 'approved') active++;
-          else if (u.kyc_status === 'rejected') blocked++;
-          else suspended++;
-        });
+      try {
+        const res = await fetch('/api/admin/dashboard');
+        const data = await res.json();
         
-        setStats({
-          totalUsers: users.length, 
-          activeUsers: active,
-          blockedUsers: blocked,
-          suspendedUsers: suspended
-        });
+        if (data.users) {
+          const users = data.users;
+          let active = 0, blocked = 0, suspended = 0;
+          users.forEach((u: any) => {
+            if (u.kyc_status === 'approved') active++;
+            else if (u.kyc_status === 'rejected') blocked++;
+            else suspended++;
+          });
+          
+          setStats({
+            totalUsers: users.length, 
+            activeUsers: active,
+            blockedUsers: blocked,
+            suspendedUsers: suspended
+          });
 
-        // Mock active IPs dynamically from real users to simulate real-time monitoring
-        // Since we can't alter DB easily, we map actual users to random but stable IPs
-        const simulatedOnline = users.slice(0, 5).map(u => {
-          // Generate a pseudo-random IP based on user ID so it stays consistent
-          const hash = String(u.id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-          const ip = `192.168.${hash % 255}.${(hash * 3) % 255}`;
-          return {
-            ...u,
-            ip,
-            statusText: "Online",
-            lastSeen: "Just now"
-          };
-        });
-        setActiveUsersList(simulatedOnline);
-      }
+          // Show real active users based on last_active_at if it exists, otherwise fallback to recent users
+          const activeUsers = users
+            .filter((u: any) => u.last_ip || u.last_active_at)
+            .sort((a: any, b: any) => new Date(b.last_active_at).getTime() - new Date(a.last_active_at).getTime());
+          
+          // If no one has real IPs yet (before SQL script runs), show the newest 5 users as a fallback
+          const displayUsers = activeUsers.length > 0 ? activeUsers.slice(0, 10) : users.slice(0, 5);
 
-      // Fetch ALL transactions
-      const { data: txs } = await supabase.from('transactions').select('type, amount, status, created_at, wallet_used');
-      if (txs) {
+          const formattedOnline = displayUsers.map((u: any) => {
+            let status = "Online";
+            let lastSeen = "Just now";
+            
+            if (u.last_active_at) {
+              const minutesAgo = Math.floor((new Date().getTime() - new Date(u.last_active_at).getTime()) / 60000);
+              if (minutesAgo > 60) {
+                status = "Away";
+                lastSeen = `${Math.floor(minutesAgo/60)} hours ago`;
+              } else if (minutesAgo > 5) {
+                status = "Idle";
+                lastSeen = `${minutesAgo} mins ago`;
+              }
+            }
+            
+            return {
+              ...u,
+              ip: u.last_ip || "N/A (Run SQL)",
+              statusText: status,
+              lastSeen: lastSeen
+            };
+          });
+          setActiveUsersList(formattedOnline);
+        }
+
+        if (data.txs) {
+          const txs = data.txs;
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
@@ -95,7 +113,7 @@ export default function AdminDashboardPage() {
           monthAgg[a.id] = {d: 0, w: 0};
         });
 
-        txs.forEach(tx => {
+        txs.forEach((tx: any) => {
           const txTime = new Date(tx.created_at).getTime();
           const amt = Number(tx.amount) || 0;
           const isToday = txTime >= startOfDay;
@@ -126,6 +144,9 @@ export default function AdminDashboardPage() {
 
         setTxToday(todayAgg);
         setTxMonth(monthAgg);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err);
       }
 
       setLoading(false);

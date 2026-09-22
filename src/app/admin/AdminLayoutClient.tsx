@@ -55,6 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Manage Transfers", href: "/admin/transfers", icon: ArrowUpFromLine },
     { name: "Manage Savings", href: "/admin/savings", icon: Wallet },
     { name: "Soft Tokens", href: "/admin/soft-tokens", icon: Key },
+    { name: "IP Config", href: "/admin/ip-config", icon: Repeat },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
