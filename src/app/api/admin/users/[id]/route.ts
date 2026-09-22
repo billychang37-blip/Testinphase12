@@ -8,8 +8,9 @@ const supabaseAdmin = createClient(
   (process.env.SUPABASE_SERVICE_ROLE_KEY || '')
 );
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const params = await context.params;
     const { id } = params;
     console.log("Fetching profile for ID:", id);
     
@@ -43,8 +44,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
+    const params = await context.params;
     const { id } = params;
     const body = await request.json();
 
