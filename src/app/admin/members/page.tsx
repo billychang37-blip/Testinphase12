@@ -8,6 +8,11 @@ export default function AdminMembersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [visiblePins, setVisiblePins] = useState<{[key: string]: boolean}>({});
+  
+  // Filter & Pagination state
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,6 +42,17 @@ export default function AdminMembersPage() {
     const d = new Date(dateStr);
     return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
   };
+
+  // Filter users
+  const filteredUsers = users.filter(u => {
+    if (filterStatus === "All") return true;
+    const s = (u.status || 'Active').toLowerCase();
+    return s === filterStatus.toLowerCase();
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) return <div className="p-8 text-[#333333]">Loading...</div>;
 
@@ -71,8 +87,19 @@ export default function AdminMembersPage() {
         <div className="mb-6">
           <label className="block text-[#333333] font-bold mb-2">Filter:</label>
           <div className="bg-[#b3b3b3] p-2">
-            <select className="w-full bg-white border border-gray-300 p-1.5 text-sm outline-none">
-              <option>All</option>
+            <select 
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full bg-white border border-gray-300 p-1.5 text-sm outline-none cursor-pointer"
+            >
+              <option value="All">All</option>
+              <option value="Active">Active</option>
+              <option value="Disabled">Disabled</option>
+              <option value="Suspended">Suspended</option>
+              <option value="Unverified">Unverified</option>
             </select>
           </div>
         </div>
@@ -117,14 +144,14 @@ export default function AdminMembersPage() {
                 </tr>
               </thead>
               <tbody>
-                {users.length === 0 ? (
+                {paginatedUsers.length === 0 ? (
                   <tr>
                     <td colSpan={11} className="p-4 text-center text-red-500 font-bold text-sm bg-red-50">—No Data Found—</td>
                   </tr>
                 ) : (
-                  users.map((u, index) => (
+                  paginatedUsers.map((u, index) => (
                     <tr key={u.id} className="text-sm text-gray-700 hover:bg-gray-50 border-b border-gray-200">
-                      <td className="p-2 text-center border-l border-r border-gray-200">{index + 1}</td>
+                      <td className="p-2 text-center border-l border-r border-gray-200">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="p-2 text-center border-r border-gray-200"><input type="checkbox" /></td>
                       <td className="p-2 text-center border-r border-gray-200">
                         <Link 
@@ -162,8 +189,56 @@ export default function AdminMembersPage() {
             </table>
           </div>
           
+          {/* Total Users & Pagination Row */}
+          <div className="bg-[#EAEAEA] border-t border-gray-300 p-2 flex justify-between items-center text-[#333333] font-bold text-xs uppercase">
+            <div>
+              {filteredUsers.length} TOTAL USER(S)
+            </div>
+            {totalPages > 1 && (
+              <div className="flex gap-1">
+                {Array.from({length: totalPages}).map((_, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1 border border-gray-300 rounded-sm ${currentPage === i + 1 ? 'bg-[#337ab7] text-white border-[#2e6da4]' : 'bg-white hover:bg-gray-100'}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
           <div className="bg-white p-2 text-center text-blue-500 text-[11px] font-semibold border-t border-gray-200">
             Copyright © 2026 All rights reserved
+          </div>
+        </div>
+
+        {/* With Selected Actions Container */}
+        <div className="mt-8 border border-[#2196F3] rounded-sm overflow-hidden shadow-sm">
+          <div className="bg-[#2196F3] text-white px-4 py-3 font-bold tracking-wide flex items-center gap-2 text-lg">
+            <div className="w-5 h-5 border-2 border-white rounded-sm flex items-center justify-center text-[12px]">■</div>
+            With Selected:
+          </div>
+          <div className="h-2 bg-black w-full" />
+          <div className="h-1 bg-[#2196F3] w-full" />
+          
+          <div className="bg-white p-4 flex gap-3 flex-wrap items-center">
+            <button className="bg-[#26B99A] hover:bg-[#1f997f] text-white px-6 py-2 rounded font-bold text-sm shadow-sm transition-colors min-w-[120px]">
+              Set Active
+            </button>
+            <button className="bg-[#337ab7] hover:bg-[#286090] text-white px-6 py-2 rounded font-bold text-sm shadow-sm transition-colors min-w-[120px]">
+              Set Disabled
+            </button>
+            <button className="bg-[#f0ad4e] hover:bg-[#ec971f] text-white px-6 py-2 rounded font-bold text-sm shadow-sm transition-colors min-w-[120px]">
+              Set Suspended
+            </button>
+            <button className="bg-[#d9534f] hover:bg-[#c9302c] text-white px-6 py-2 rounded font-bold text-sm shadow-sm transition-colors min-w-[120px]">
+              Delete
+            </button>
+            <button className="bg-white border border-gray-300 text-[#333333] hover:bg-gray-50 px-6 py-2 rounded font-bold text-sm shadow-sm transition-colors min-w-[120px]">
+              Send Email
+            </button>
           </div>
         </div>
 
