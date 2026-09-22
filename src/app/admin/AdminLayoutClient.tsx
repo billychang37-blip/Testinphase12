@@ -134,11 +134,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 p-4 relative">
-          {children}
+        <main className="flex-1 flex flex-col p-4 relative">
+          <div>
+            {children}
+          </div>
           
-          <div className="mt-8 text-center text-[11px] text-blue-500 mb-4 font-semibold">
-            Copyright © 2026 All rights reserved | Cryptocathedral
+          <div className="mt-auto pt-8 text-center text-[11px] text-blue-500 mb-2 font-semibold">
+            Copyright © 2026 All rights reserved
           </div>
         </main>
       </div>
