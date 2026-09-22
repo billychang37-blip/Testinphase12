@@ -11,17 +11,17 @@ export async function GET(request: Request) {
     // We use the service role key to bypass RLS entirely so admins can see all data
     // (RLS usually blocks users from seeing other users' data)
     
-    // Fetch all profiles
+    // Fetch all profiles using * to avoid crashes if IP columns aren't created yet
     const { data: users, error: userError } = await supabaseAdmin
       .from('profiles')
-      .select('id, first_name, last_name, email, kyc_status, status, last_ip, last_active_at, account_number');
+      .select('*');
       
     if (userError) throw userError;
 
     // Fetch all transactions
     const { data: txs, error: txError } = await supabaseAdmin
       .from('transactions')
-      .select('type, amount, status, created_at, wallet_used');
+      .select('*');
       
     if (txError) throw txError;
 
