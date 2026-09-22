@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: "Manage Savings", href: "/admin/savings", icon: Wallet },
     { name: "Soft Tokens", href: "/admin/soft-tokens", icon: Key },
     { name: "IP Config", href: "/admin/ip-config", icon: Repeat },
-    { name: "Settings", href: "/admin/settings", icon: Settings },
+    { name: "Settings", href: "/admin/profile", icon: Settings },
   ];
 
   if (loading) return <div className="h-screen w-full bg-[#f4f6f9] flex items-center justify-center">Loading...</div>;
@@ -112,16 +112,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </div>
           <div className="flex items-center gap-5 text-white">
-            <button className="hover:text-gray-300 transition-colors">
+            <Link href="/admin/profile" className="hover:text-gray-300 transition-colors">
               <Settings className="w-4 h-4" />
-            </button>
+            </Link>
             <button className="hover:text-gray-300 transition-colors relative">
               <Mail className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-white overflow-hidden cursor-pointer border border-gray-400">
+            <Link href="/admin/profile" className="w-8 h-8 rounded-full bg-white overflow-hidden cursor-pointer border border-gray-400 block">
               <img src="/default-avatar.png" alt="Admin" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://ui-avatars.com/api/?name=Admin&background=random')} />
-            </div>
+            </Link>
             <button 
               onClick={async () => {
                 await supabase.auth.signOut();
