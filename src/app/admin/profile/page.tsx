@@ -90,16 +90,12 @@ export default function AdminProfilePage() {
               style={{ borderBottomRightRadius: '120px' }}
             >
               <div className="p-4 bg-[#2196F3]">
-                <div className="bg-[#1a232e] w-full aspect-square border-4 border-[#2196F3] relative">
+                <div className="bg-white w-full aspect-square border-4 border-[#2196F3] relative">
                   {/* Default avatar image */}
                   <img 
-                    src="https://cryptocathedral.com/dashboard/assets/images/avatar.jpg" 
+                    src="/admin-avatar.png" 
                     alt="Admin Avatar"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback placeholder that matches the reference illustration
-                      e.currentTarget.src = "https://ui-avatars.com/api/?name=Admin&background=f0f0f0&color=333&size=256";
-                    }}
                   />
                 </div>
               </div>

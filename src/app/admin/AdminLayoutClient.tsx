@@ -120,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
             <Link href="/admin/profile" className="w-8 h-8 rounded-full bg-white overflow-hidden cursor-pointer border border-gray-400 block">
-              <img src="/default-avatar.png" alt="Admin" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://ui-avatars.com/api/?name=Admin&background=random')} />
+              <img src="/admin-avatar.png" alt="Admin" className="w-full h-full object-cover" />
             </Link>
             <button 
               onClick={async () => {
