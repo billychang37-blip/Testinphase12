@@ -13,6 +13,7 @@ export default function EditMemberPage() {
   const [saving, setSaving] = useState(false);
   const [deposits, setDeposits] = useState<any[]>([]);
   const [transfers, setTransfers] = useState<any[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,16 +23,21 @@ export default function EditMemberPage() {
         const res = await fetch(`/api/admin/users/${params.id}`, { cache: 'no-store' });
         const data = await res.json();
         
-        if (data.profile) {
+        if (!res.ok) {
+          setErrorMsg(data.error || 'Failed to fetch user');
+        } else if (data.profile) {
           setProfile(data.profile);
+        } else {
+          setErrorMsg('Profile data is missing');
         }
         
         if (data.transactions) {
           setDeposits(data.transactions.filter((t: any) => t.type === 'deposit'));
           setTransfers(data.transactions.filter((t: any) => t.type === 'transfer' || t.type === 'crypto_transfer' || t.type === 'withdrawal'));
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        setErrorMsg(err.message || 'Network error');
       }
       setLoading(false);
     };
