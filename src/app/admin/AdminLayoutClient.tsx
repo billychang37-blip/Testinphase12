@@ -61,12 +61,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading) return <div className="h-screen w-full bg-[#f4f6f9] flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="flex h-screen bg-[#f4f6f9] font-sans min-w-[980px] overflow-x-hidden">
+    <div className="flex min-h-screen bg-[#f4f6f9] font-sans min-w-[980px]">
       
       {/* Sidebar - strict desktop */}
       {sidebarOpen && (
-        <aside className="flex flex-col w-[250px] bg-[#222222] text-[#999999] h-full shadow-xl overflow-y-auto shrink-0 transition-all duration-300">
-          <div className="p-5 h-16 border-b border-[#333333] flex items-center justify-center">
+        <aside className="flex flex-col w-[250px] bg-[#222222] text-[#999999] shadow-xl shrink-0 transition-all duration-300">
+          <div className="p-5 h-[55px] border-b border-[#333333] flex items-center justify-center">
              {/* Empty logo area like reference */}
           </div>
           <nav className="flex-1 py-4">
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen">
         
         {/* Top Header */}
         <header className="h-[55px] bg-[#424242] flex items-center justify-between px-6 shadow-md shrink-0 border-b border-gray-600">
@@ -134,11 +134,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 relative">
+        <main className="flex-1 p-4 relative">
           {children}
           
           <div className="mt-8 text-center text-[11px] text-blue-500 mb-4 font-semibold">
-            Copyright ©2026 All rights reserved | Cryptocathedral
+            Copyright © 2026 All rights reserved | Cryptocathedral
           </div>
         </main>
       </div>
