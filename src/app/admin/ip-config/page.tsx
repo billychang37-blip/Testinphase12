@@ -12,7 +12,7 @@ export default function IPConfigPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/admin/dashboard');
+        const res = await fetch('/api/admin/dashboard', { cache: 'no-store' });
         const data = await res.json();
         if (data.users) {
           setUsers(data.users);
