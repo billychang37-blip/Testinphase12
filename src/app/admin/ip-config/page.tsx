@@ -73,7 +73,7 @@ export default function IPConfigPage() {
                 <tr key={u.id} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'} border-b border-gray-100 text-gray-600 text-[13px] font-semibold hover:bg-gray-50 transition-colors`}>
                   <td className="px-5 py-4">{u.first_name} {u.last_name}</td>
                   <td className="px-5 py-4 text-gray-500">{u.email}</td>
-                  <td className="px-5 py-4 font-mono text-blue-600 font-bold">{u.last_ip || "N/A (Run SQL)"}</td>
+                  <td className="px-5 py-4 font-mono text-blue-600 font-bold">{u.last_ip || "Unknown (Waiting for login)"}</td>
                   <td className="px-5 py-4">
                     {u.status === 'blocked' ? (
                       <span className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold flex items-center w-max gap-1">

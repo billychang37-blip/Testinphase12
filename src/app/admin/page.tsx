@@ -92,7 +92,7 @@ export default function AdminDashboardPage() {
             
             return {
               ...u,
-              ip: u.last_ip || "N/A (Run SQL)",
+              ip: u.last_ip || "Unknown (Waiting for login)",
               statusText: status,
               lastSeen: lastSeen
             };

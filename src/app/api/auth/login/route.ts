@@ -35,7 +35,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid User ID or PIN.' }, { status: 401 });
     }
 
-    // 3. Since the PIN matches, return the actual email to the client 
+    // 3. Since the PIN matches, we update their IP address before returning success
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const userIp = forwardedFor ? forwardedFor.split(',')[0] : (realIp || 'Unknown IP');
+
+    // Fire and forget the IP update (no need to block the login response on it)
+    supabaseAdmin.from('profiles').update({
+      last_ip: userIp,
+      last_active_at: new Date().toISOString()
+    }).eq('generated_user_id', userId).then(({ error }) => {
+      if (error) console.error("Failed to update IP:", error);
+    });
+
+    // 4. Return the actual email to the client 
     // so the frontend can establish the official Supabase Auth session using the PIN as the password.
     return NextResponse.json({ 
       success: true, 
