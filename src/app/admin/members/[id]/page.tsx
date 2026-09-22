@@ -19,7 +19,7 @@ export default function EditMemberPage() {
       if (!params.id) return;
       
       try {
-        const res = await fetch(`/api/admin/users/${params.id}`);
+        const res = await fetch(`/api/admin/users/${params.id}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.profile) {

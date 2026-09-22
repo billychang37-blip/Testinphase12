@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 const supabaseAdmin = createClient(
   (process.env.NEXT_PUBLIC_SUPABASE_URL || ''),
   (process.env.SUPABASE_SERVICE_ROLE_KEY || '')
@@ -9,6 +11,7 @@ const supabaseAdmin = createClient(
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
+    console.log("Fetching profile for ID:", id);
     
     // Fetch profile
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -17,7 +20,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .eq('id', id)
       .single();
 
-    if (profileError) throw profileError;
+    if (profileError) {
+      console.error("Profile fetch error:", profileError.message);
+      throw profileError;
+    }
 
     // Fetch transactions
     const { data: txData, error: txError } = await supabaseAdmin
@@ -26,7 +32,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
       .eq('user_id', id)
       .order('created_at', { ascending: false });
 
-    if (txError) throw txError;
+    // Don't throw txError, just ignore if the table doesn't exist
+    if (txError) {
+      console.warn("Transactions fetch error:", txError.message);
+    }
 
     return NextResponse.json({ profile, transactions: txData || [] });
   } catch (err: any) {
