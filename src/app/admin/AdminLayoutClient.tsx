@@ -49,25 +49,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Manage Members", href: "/admin/members", icon: Users },
-    { name: "User Private Key", href: "#", icon: Key },
-    { name: "KYC", href: "/admin/kyc", icon: FileCheck },
-    { name: "Add Funds", href: "/admin/add-funds", icon: PlusCircle },
+    { name: "KYC Applications", href: "/admin/kyc", icon: FileCheck },
+    { name: "Fund Accounts", href: "/admin/add-funds", icon: PlusCircle },
     { name: "Manage Deposits", href: "/admin/deposits", icon: ArrowDownToLine },
-    { name: "Manage Transfer", href: "/admin/transfers", icon: ArrowUpFromLine },
-    { name: "Virtual Card", href: "#", icon: Wallet },
-    { name: "Wallet Connect", href: "#", icon: Network },
-    { name: "Manage User", href: "#", icon: Users },
-    { name: "Manage Internal Transfer", href: "#", icon: ArrowRightLeft },
-    { name: "Email", href: "#", icon: Mail },
-    { name: "IP Config", href: "#", icon: Repeat },
-    { name: "Custom Pages", href: "#", icon: FileText },
+    { name: "Manage Transfers", href: "/admin/transfers", icon: ArrowUpFromLine },
+    { name: "Manage Savings", href: "/admin/savings", icon: Wallet },
+    { name: "Soft Tokens", href: "/admin/soft-tokens", icon: Key },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
   if (loading) return <div className="h-screen w-full bg-[#f4f6f9] flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="flex h-screen bg-[#f4f6f9] font-sans min-w-[1200px] overflow-x-hidden">
+    <div className="flex h-screen bg-[#f4f6f9] font-sans min-w-[980px] overflow-x-hidden">
       
       {/* Sidebar - strict desktop */}
       {sidebarOpen && (
