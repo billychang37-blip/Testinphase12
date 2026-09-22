@@ -26,25 +26,15 @@ export default function AddMemberPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      // In a real implementation this requires a secure Admin API route to bypass Supabase Auth constraints.
-      // We will attempt to insert a profile directly for demonstration, but auth.signUp is needed for real login.
-      alert("Note: This will only create a profile record. Creating a full auth user requires a secure API route.");
-      const { error } = await supabase.from('profiles').insert([
-        {
-          email: profile.email,
-          first_name: profile.first_name,
-          phone: profile.phone,
-          status: profile.status,
-          country: profile.country,
-          state: profile.state,
-          recovery_phrase: profile.recovery_phrase,
-          transfer_fee: profile.transfer_fee,
-          swift_pin: profile.swift_pin,
-          generated_pin: profile.password
-        }
-      ]);
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile)
+      });
       
-      if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create user');
+      
       alert("User added successfully!");
       router.push("/admin/members");
     } catch (err: any) {

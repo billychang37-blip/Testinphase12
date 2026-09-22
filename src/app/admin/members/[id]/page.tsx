@@ -19,17 +19,16 @@ export default function EditMemberPage() {
       if (!params.id) return;
       
       try {
-        // Fetch profile
-        const { data: dbProfile, error: profileError } = await supabase.from('profiles').select('*').eq('id', params.id).single();
-        if (dbProfile) {
-          setProfile(dbProfile);
+        const res = await fetch(`/api/admin/users/${params.id}`);
+        const data = await res.json();
+        
+        if (data.profile) {
+          setProfile(data.profile);
         }
-
-        // Fetch transactions for this user
-        const { data: txData } = await supabase.from('transactions').select('*').eq('user_id', params.id).order('created_at', { ascending: false });
-        if (txData) {
-          setDeposits(txData.filter(t => t.type === 'deposit'));
-          setTransfers(txData.filter(t => t.type === 'transfer' || t.type === 'crypto_transfer' || t.type === 'withdrawal'));
+        
+        if (data.transactions) {
+          setDeposits(data.transactions.filter((t: any) => t.type === 'deposit'));
+          setTransfers(data.transactions.filter((t: any) => t.type === 'transfer' || t.type === 'crypto_transfer' || t.type === 'withdrawal'));
         }
       } catch (err) {
         console.error(err);
@@ -44,19 +43,25 @@ export default function EditMemberPage() {
     if (!profile) return;
     setSaving(true);
     try {
-      const { error } = await supabase.from('profiles').update({
-        email: profile.email,
-        first_name: profile.first_name,
-        phone: profile.phone,
-        status: profile.status,
-        country: profile.country,
-        state: profile.state,
-        recovery_phrase: profile.recovery_phrase,
-        transfer_fee: profile.transfer_fee,
-        swift_pin: profile.swift_pin
-      }).eq('id', params.id);
+      const res = await fetch(`/api/admin/users/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: profile.email,
+          first_name: profile.first_name,
+          phone: profile.phone,
+          status: profile.status,
+          country: profile.country,
+          state: profile.state,
+          recovery_phrase: profile.recovery_phrase,
+          transfer_fee: profile.transfer_fee,
+          swift_pin: profile.swift_pin
+        })
+      });
       
-      if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update user');
+      
       alert("User updated successfully!");
     } catch (err: any) {
       alert("Error updating user: " + err.message);
