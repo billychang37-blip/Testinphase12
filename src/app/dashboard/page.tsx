@@ -35,7 +35,7 @@ export default function DashboardPage() {
             {tx.type === 'deposit' 
               ? tx.wallet_used === 'main' 
                 ? tx.sender_name ? `From ${tx.sender_name}` : (tx.description?.includes('from') ? tx.description.split('from')[1].trim() : 'Bank Deposit')
-                : `${tx.wallet_used.startsWith('usdt') ? 'USDT' : (tx.wallet_used.startsWith('usdc') ? 'USDC' : 'Crypto')} Deposit`
+                : `${(tx.wallet_used || '').startsWith('usdt') ? 'USDT' : ((tx.wallet_used || '').startsWith('usdc') ? 'USDC' : 'Crypto')} Deposit`
               : 'Withdrawal'
             }
           </h3>
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       {/* Amount and Status */}
       <div className="flex flex-col items-end text-right">
         <span className={`text-[16px] font-bold ${tx.type === 'deposit' ? 'text-emerald-600' : 'text-gray-900'}`}>
-          {tx.type === 'deposit' ? '+' : '-'} {tx.wallet_used === 'main' ? currencySymbol : ''}{Number(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2})} {tx.wallet_used !== 'main' ? (tx.wallet_used.startsWith('usdt') ? 'USDT' : (tx.wallet_used.startsWith('usdc') ? 'USDC' : '')) : ''}
+          {tx.type === 'deposit' ? '+' : '-'} {tx.wallet_used === 'main' ? currencySymbol : ''}{Number(tx.amount).toLocaleString('en-US', {minimumFractionDigits: 2})} {tx.wallet_used !== 'main' ? ((tx.wallet_used || '').startsWith('usdt') ? 'USDT' : ((tx.wallet_used || '').startsWith('usdc') ? 'USDC' : '')) : ''}
         </span>
         <div className="mt-1">
           <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
