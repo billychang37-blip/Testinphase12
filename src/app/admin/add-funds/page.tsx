@@ -314,8 +314,8 @@ export default function AdminAddFundsPage() {
       </div>
 
       {showUserModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-white rounded shadow-xl w-full max-w-lg flex flex-col max-h-[80vh] overflow-hidden">
+        <div className="fixed top-0 left-0 right-0 bottom-0 z-[100] flex items-center justify-center bg-black/60 p-4 min-w-[980px]">
+          <div className="bg-white rounded shadow-xl w-[500px] flex flex-col max-h-[80vh] overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between bg-white border-b-2 border-blue-500 px-4 py-3">
               <h2 className="text-blue-500 text-sm font-bold tracking-widest uppercase">Select Users</h2>
