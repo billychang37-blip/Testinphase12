@@ -25,15 +25,6 @@ export default function IPConfigPage() {
     fetchUsers();
   }, []);
 
-  const getFlagEmoji = (countryCode: string) => {
-    if (!countryCode) return '';
-    const codePoints = countryCode
-      .toUpperCase()
-      .split('')
-      .map(char => 127397 + char.charCodeAt(0));
-    return String.fromCodePoint(...codePoints);
-  };
-
   const getCountryName = (countryCode: string) => {
     if (!countryCode) return '';
     try {
@@ -49,11 +40,11 @@ export default function IPConfigPage() {
     (u.email || "").toLowerCase().includes(search.toLowerCase()) ||
     (u.last_ip || "").includes(search)
   ).map(u => {
-    const flag = getFlagEmoji(u.last_country || '');
     const countryName = getCountryName(u.last_country || '');
     return {
       ...u,
-      location: u.last_country ? `${flag} ${countryName}` : ''
+      countryCode: u.last_country ? u.last_country.toLowerCase() : null,
+      countryName: countryName
     };
   });
 
@@ -102,7 +93,16 @@ export default function IPConfigPage() {
                   <td className="px-5 py-4 text-gray-500">{u.email}</td>
                   <td className="px-5 py-4 font-mono text-blue-600 font-bold">
                     <div>{u.last_ip || "Unknown (Waiting for login)"}</div>
-                    {u.location && <div className="text-xs text-gray-500 font-sans mt-0.5">{u.location}</div>}
+                    {u.countryCode && (
+                      <div className="text-xs text-gray-500 font-sans mt-0.5 flex items-center gap-1.5 font-normal">
+                        <img 
+                          src={`https://flagcdn.com/w20/${u.countryCode}.png`} 
+                          alt={u.countryCode} 
+                          className="w-4 h-auto rounded-sm shadow-sm"
+                        />
+                        {u.countryName}
+                      </div>
+                    )}
                   </td>
                   <td className="px-5 py-4">
                     {u.status === 'blocked' ? (

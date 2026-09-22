@@ -67,15 +67,6 @@ export default function AdminDashboardPage() {
             suspendedUsers: suspended
           });
 
-          const getFlagEmoji = (countryCode: string) => {
-            if (!countryCode) return '';
-            const codePoints = countryCode
-              .toUpperCase()
-              .split('')
-              .map(char => 127397 + char.charCodeAt(0));
-            return String.fromCodePoint(...codePoints);
-          };
-
           const getCountryName = (countryCode: string) => {
             if (!countryCode) return '';
             try {
@@ -110,14 +101,13 @@ export default function AdminDashboardPage() {
               status = "Idle";
             }
             
-            const flag = getFlagEmoji(u.last_country || '');
             const countryName = getCountryName(u.last_country || '');
-            const locationString = u.last_country ? `${flag} ${countryName}` : '';
 
             return {
               ...u,
               ip: u.last_ip || "Unknown (Waiting for login)",
-              location: locationString,
+              countryCode: u.last_country ? u.last_country.toLowerCase() : null,
+              countryName: countryName,
               statusText: status,
               lastSeen: lastSeen
             };
@@ -363,7 +353,16 @@ export default function AdminDashboardPage() {
                   <td className="px-5 py-3">{u.email}</td>
                   <td className="px-5 py-3 font-mono text-blue-600">
                     <div>{u.ip}</div>
-                    {u.location && <div className="text-xs text-gray-500 font-sans mt-0.5">{u.location}</div>}
+                    {u.countryCode && (
+                      <div className="text-xs text-gray-500 font-sans mt-0.5 flex items-center gap-1.5">
+                        <img 
+                          src={`https://flagcdn.com/w20/${u.countryCode}.png`} 
+                          alt={u.countryCode} 
+                          className="w-4 h-auto rounded-sm shadow-sm"
+                        />
+                        {u.countryName}
+                      </div>
+                    )}
                   </td>
                   <td className="px-5 py-3">
                     <span className={`flex items-center gap-2 ${u.statusText === 'Active' ? 'text-green-600' : 'text-gray-500'}`}>
