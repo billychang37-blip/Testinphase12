@@ -77,59 +77,59 @@ export default function AdminDashboardPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 bg-white border border-gray-200 shadow-md rounded flex items-center gap-2 px-4 py-2 z-10 w-max max-w-full animate-in slide-in-from-top-4">
         <span className="text-yellow-500 text-lg">👋</span>
         <div className="text-center">
-          <p className="text-[11px] md:text-sm font-bold text-gray-700">Good Morning, Admin. It's Good</p>
-          <p className="text-[11px] md:text-sm font-bold text-gray-700">To Have You Today.</p>
+          <p className="text-sm font-bold text-gray-700">Good Morning, Admin. It's Good</p>
+          <p className="text-sm font-bold text-gray-700">To Have You Today.</p>
         </div>
       </div>
       
       {/* Top Stats Cards */}
-      <div className="flex flex-col md:flex-row mt-14 md:mt-16 mb-8 bg-white border border-gray-200 shadow-sm w-full overflow-hidden">
+      <div className="flex flex-row mt-14 md:mt-16 mb-8 bg-white border border-gray-200 shadow-sm w-full overflow-hidden">
         
         {/* Active Users */}
-        <div className="flex flex-1 border-b md:border-b-0 md:border-r border-gray-200">
-          <div className="w-24 md:w-32 bg-[#B76F40] flex flex-col items-center justify-center text-white py-4 px-2">
+        <div className="flex flex-1 border-b-0 border-r border-gray-200">
+          <div className="w-32 bg-[#B76F40] flex flex-col items-center justify-center text-white py-4 px-2">
             <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
-            <span className="font-bold text-[11px] md:text-sm tracking-wide">Users</span>
-            <span className="text-[10px] md:text-xs">[Active]</span>
+            <span className="font-bold text-sm tracking-wide">Users</span>
+            <span className="text-xs">[Active]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-2xl md:text-3xl font-light text-gray-700">{stats.activeUsers}</span>
+            <span className="text-3xl font-light text-gray-700">{stats.activeUsers}</span>
           </div>
         </div>
 
         {/* Blocked Users */}
-        <div className="flex flex-1 border-b md:border-b-0 md:border-r border-gray-200">
-          <div className="w-24 md:w-32 bg-[#E74C3C] flex flex-col items-center justify-center text-white py-4 px-2">
+        <div className="flex flex-1 border-b-0 border-r border-gray-200">
+          <div className="w-32 bg-[#E74C3C] flex flex-col items-center justify-center text-white py-4 px-2">
             <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
-            <span className="font-bold text-[11px] md:text-sm tracking-wide">Users</span>
-            <span className="text-[10px] md:text-xs">[Blocked]</span>
+            <span className="font-bold text-sm tracking-wide">Users</span>
+            <span className="text-xs">[Blocked]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-2xl md:text-3xl font-light text-gray-700">{stats.blockedUsers}</span>
+            <span className="text-3xl font-light text-gray-700">{stats.blockedUsers}</span>
           </div>
         </div>
 
         {/* Suspended Users */}
-        <div className="flex flex-1 border-b md:border-b-0 md:border-r border-gray-200">
-          <div className="w-24 md:w-32 bg-[#1ABC9C] flex flex-col items-center justify-center text-white py-4 px-2">
+        <div className="flex flex-1 border-b-0 border-r border-gray-200">
+          <div className="w-32 bg-[#1ABC9C] flex flex-col items-center justify-center text-white py-4 px-2">
             <svg className="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path></svg>
-            <span className="font-bold text-[11px] md:text-sm tracking-wide">Users</span>
-            <span className="text-[10px] md:text-xs">[Suspended]</span>
+            <span className="font-bold text-sm tracking-wide">Users</span>
+            <span className="text-xs">[Suspended]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-2xl md:text-3xl font-light text-gray-700">{stats.suspendedUsers}</span>
+            <span className="text-3xl font-light text-gray-700">{stats.suspendedUsers}</span>
           </div>
         </div>
 
         {/* Pending KYC / Misc */}
         <div className="flex flex-1">
-          <div className="w-24 md:w-32 bg-[#34495E] flex flex-col items-center justify-center text-white py-4 px-2">
+          <div className="w-32 bg-[#34495E] flex flex-col items-center justify-center text-white py-4 px-2">
             <svg className="w-8 h-8 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span className="font-bold text-[11px] md:text-sm tracking-wide">Users</span>
-            <span className="text-[10px] md:text-xs">[Pending]</span>
+            <span className="font-bold text-sm tracking-wide">Users</span>
+            <span className="text-xs">[Pending]</span>
           </div>
           <div className="flex-1 py-4 flex items-center justify-center bg-white text-center">
-            <span className="text-2xl md:text-3xl font-light text-gray-700">{stats.pendingKYC}</span>
+            <span className="text-3xl font-light text-gray-700">{stats.pendingKYC}</span>
           </div>
         </div>
 
