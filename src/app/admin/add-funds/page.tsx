@@ -22,6 +22,8 @@ export default function AdminAddFundsPage() {
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     // Set default date to today
@@ -144,19 +146,20 @@ export default function AdminAddFundsPage() {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">User: <span className="text-red-500">*</span></label>
-            <select 
-              value={selectedUser}
-              onChange={e => setSelectedUser(e.target.value)}
-              className="w-full border border-gray-300 p-3 rounded-sm bg-gray-50 outline-none focus:border-[#3498db] text-sm text-gray-700"
-              required
+            <div 
+              onClick={() => setShowUserModal(true)}
+              className="w-full border border-gray-300 p-3 rounded-sm bg-gray-50 text-sm text-gray-700 cursor-pointer flex justify-between items-center hover:border-[#3498db] transition-colors"
             >
-              <option value="">-- Choose a user --</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>
-                  {u.first_name} {u.last_name} ({u.email})
-                </option>
-              ))}
-            </select>
+              <span>
+                {selectedUser 
+                  ? (() => {
+                      const u = users.find(x => x.id === selectedUser);
+                      return u ? `${u.first_name} ${u.last_name} (${u.email})` : 'Select a user...';
+                    })()
+                  : 'Select a user...'}
+              </span>
+              <span className="text-gray-400 font-bold">▼</span>
+            </div>
             
             {selectedUser && (() => {
               const u = users.find(x => x.id === selectedUser);
@@ -309,6 +312,84 @@ export default function AdminAddFundsPage() {
           </div>
         </form>
       </div>
+
+      {showUserModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded shadow-xl w-full max-w-lg flex flex-col max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between bg-white border-b-2 border-blue-500 px-4 py-3">
+              <h2 className="text-blue-500 text-sm font-bold tracking-widest uppercase">Select Users</h2>
+              <button 
+                onClick={() => setShowUserModal(false)}
+                className="bg-blue-500 hover:bg-blue-600 text-white w-6 h-6 flex items-center justify-center rounded-sm transition-colors text-xs font-bold"
+              >
+                X
+              </button>
+            </div>
+            
+            {/* Search */}
+            <div className="p-4 border-b border-gray-100">
+              <input 
+                type="text"
+                placeholder="Search..."
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+                className="w-full border border-blue-200 p-2 rounded outline-none focus:border-blue-500 text-sm"
+              />
+            </div>
+            
+            {/* User List */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
+              {users.filter(u => {
+                const search = userSearch.toLowerCase();
+                const name = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+                const email = (u.email || '').toLowerCase();
+                const acct = (u.account_number || '').toLowerCase();
+                return name.includes(search) || email.includes(search) || acct.includes(search);
+              }).map(u => (
+                <div 
+                  key={u.id}
+                  onClick={() => {
+                    setSelectedUser(u.id);
+                    setShowUserModal(false);
+                    setUserSearch("");
+                  }}
+                  className={`p-3 border rounded cursor-pointer transition-colors ${selectedUser === u.id ? 'bg-blue-50 border-blue-400' : 'bg-gray-200 border-gray-300 hover:bg-gray-300'}`}
+                >
+                  <div className="font-bold text-gray-800 text-sm">{u.first_name} {u.last_name}</div>
+                  <div className="text-blue-600 text-xs font-bold font-mono my-0.5">{u.account_number || 'No Account #'}</div>
+                  <div className="text-gray-600 text-xs">{u.email}</div>
+                </div>
+              ))}
+              {users.length > 0 && users.filter(u => {
+                const search = userSearch.toLowerCase();
+                const name = `${u.first_name || ''} ${u.last_name || ''}`.toLowerCase();
+                const email = (u.email || '').toLowerCase();
+                const acct = (u.account_number || '').toLowerCase();
+                return name.includes(search) || email.includes(search) || acct.includes(search);
+              }).length === 0 && (
+                <div className="text-center text-sm text-gray-500 py-4">No users found.</div>
+              )}
+            </div>
+            
+            {/* Footer Buttons */}
+            <div className="p-4 bg-white border-t border-gray-200 flex gap-4">
+              <button 
+                onClick={() => setShowUserModal(false)}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-bold text-xs rounded hover:bg-gray-50"
+              >
+                Submit ({selectedUser ? '1' : '0'})
+              </button>
+              <button 
+                onClick={() => setSelectedUser("")}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-bold text-xs rounded hover:bg-gray-50"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

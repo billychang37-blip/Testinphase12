@@ -66,12 +66,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (loading) return <div className="h-screen w-full flex items-center justify-center">Loading admin panel...</div>;
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans min-w-[1024px] overflow-x-hidden">
+    <div className="flex h-screen bg-gray-100 font-sans overflow-x-hidden">
       
       {/* Sidebar - Desktop */}
-      <aside className="flex flex-col w-64 bg-[#2A2A2A] text-gray-300 h-full shadow-xl overflow-y-auto">
-        <div className="p-5 border-b border-gray-700 bg-[#222222]">
-          <h2 className="text-xl font-bold text-white tracking-wider uppercase">Super Admin</h2>
+      <aside className="hidden md:flex flex-col w-64 bg-[#2A2A2A] text-gray-300 h-full shadow-xl overflow-y-auto">
+        <div className="p-5 border-b border-gray-700 bg-[#222222] h-16">
+          {/* Logo area */}
         </div>
         <nav className="flex-1 py-4">
           <ul className="space-y-1">
@@ -99,10 +99,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Top Header */}
         <header className="h-16 bg-[#34495e] flex items-center justify-between px-6 shadow-md z-10 shrink-0">
           <div className="flex items-center text-white">
-            <button className="hidden mr-4" onClick={() => setIsMobileMenuOpen(true)}>
+            <button className="md:hidden mr-4" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="font-semibold hidden block text-lg">Admin Control Panel</h1>
+            <h1 className="font-semibold hidden md:block text-lg">Admin Control Panel</h1>
           </div>
           <div className="flex items-center gap-4 text-white">
             <button className="hover:text-gray-300 transition-colors">
@@ -135,11 +135,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex hidden">
+        <div className="fixed inset-0 z-50 flex md:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)}></div>
           <aside className="relative w-64 bg-[#2A2A2A] text-gray-300 h-full shadow-2xl flex flex-col overflow-y-auto animate-in slide-in-from-left">
-            <div className="p-5 border-b border-gray-700 bg-[#222222] flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white tracking-wider uppercase">Super Admin</h2>
+            <div className="p-5 border-b border-gray-700 bg-[#222222] flex items-center justify-between h-16">
+              <div className="flex-1"></div>
               <button onClick={() => setIsMobileMenuOpen(false)}><X className="w-5 h-5 text-white" /></button>
             </div>
             <nav className="flex-1 py-4">
