@@ -30,6 +30,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .eq("id", session.user.id)
         .single();
       if (profileData) {
+        if (profileData.status === 'blocked' || profileData.status === 'suspended') {
+          await supabase.auth.signOut();
+          router.push('/login?error=account_suspended');
+          return;
+        }
         setProfile({ ...profileData, ...session.user.user_metadata });
       }
       setIsLoading(false);

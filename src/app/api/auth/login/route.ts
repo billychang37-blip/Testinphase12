@@ -19,13 +19,21 @@ export async function POST(request: Request) {
     // 1. Look up the user's actual email using the provided User ID (Access Code)
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('email, generated_pin, account_type')
+      .select('email, generated_pin, account_type, status, suspend_until')
       .eq('generated_user_id', userId)
       .single();
 
     if (profileError || !profile) {
       // Return a generic error to prevent User ID enumeration
       return NextResponse.json({ error: 'Invalid User ID or PIN.' }, { status: 401 });
+    }
+
+    if (profile.status === 'blocked') {
+      return NextResponse.json({ error: 'This account has been permanently banned. Please contact support.' }, { status: 403 });
+    }
+
+    if (profile.status === 'suspended') {
+      return NextResponse.json({ error: 'This account is temporarily suspended. Please contact support.' }, { status: 403 });
     }
 
     // 2. Verify the PIN matches the one we generated and stored

@@ -14,6 +14,14 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
+    // Check for suspension redirect
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('error') === 'account_suspended') {
+        setAuthError("Your session was terminated. This account has been suspended or banned.");
+      }
+    }
+
     // Pre-fill user ID and PIN if remember me was used before
     const savedUserId = localStorage.getItem("ocbc_remembered_user");
     const savedPin = localStorage.getItem("ocbc_remembered_pin");
