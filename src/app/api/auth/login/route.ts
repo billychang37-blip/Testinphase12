@@ -17,9 +17,10 @@ export async function POST(request: Request) {
     }
 
     // 1. Look up the user's actual email using the provided User ID (Access Code)
+    // Removed explicit column names to prevent crash if status column doesn't exist yet
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('email, generated_pin, account_type, status, suspend_until')
+      .select('*')
       .eq('generated_user_id', userId)
       .single();
 
