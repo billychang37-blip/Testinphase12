@@ -29,8 +29,8 @@ export default function InternalTransferPage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [password, setPassword] = useState("");
-  
+  const [pin, setPin] = useState("");
+  const [softToken, setSoftToken] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -79,7 +79,7 @@ export default function InternalTransferPage() {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!accountNumber || !amount || !password) {
+    if (!accountNumber || !amount || !pin || !softToken) {
       setErrorMsg("Please fill in all required fields.");
       return;
     }
@@ -102,11 +102,16 @@ export default function InternalTransferPage() {
     if (!currSession) return;
     
     if (!profile?.soft_token) {
-       const { data: txs } = await supabase.from("transactions").select("*").eq("user_id", currSession.user.id).eq("type", "soft_token_purchase").eq("status", "completed");
-       if (!txs || txs.length === 0) {
-           setErrorMsg("A Soft Token (e-Token OTP) is required to authorize transfers. Please activate one in the Soft Token menu.");
-           return;
-       }
+      setErrorMsg("You do not have an active Soft Token. Please request one to make transfers.");
+      return;
+    }
+    if (softToken !== profile.soft_token) {
+      setErrorMsg("Invalid Soft Token. Transfer blocked.");
+      return;
+    }
+    if (pin !== profile.generated_pin) {
+      setErrorMsg("Invalid Account PIN. Transfer blocked.");
+      return;
     }
 
     setIsSubmitting(true);
@@ -317,17 +322,33 @@ export default function InternalTransferPage() {
               </div>
             </div>
 
-            {/* Account Password */}
+            {/* Account PIN */}
             <div>
-              <label className="block text-gray-700 font-medium text-[14px] mb-2">Account Password <span className="text-red-500">*</span></label>
+              <label className="block text-gray-700 font-medium text-[14px] mb-2">Account PIN <span className="text-red-500">*</span></label>
               <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#E81C24] transition-colors px-4 py-3.5 bg-white">
                 <KeyRound className="w-5 h-5 text-gray-400 mr-3" />
                 <input 
                   type="password" 
                   required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter Account PIN"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  className="w-full outline-none text-[15px] font-medium text-gray-900 bg-transparent placeholder:text-gray-400"
+                />
+              </div>
+            </div>
+
+            {/* Soft Token */}
+            <div>
+              <label className="block text-gray-700 font-medium text-[14px] mb-2">Soft Token (OTP) <span className="text-red-500">*</span></label>
+              <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#E81C24] transition-colors px-4 py-3.5 bg-white">
+                <KeyRound className="w-5 h-5 text-gray-400 mr-3" />
+                <input 
+                  type="text" 
+                  required
+                  placeholder="Enter 6-digit Soft Token"
+                  value={softToken}
+                  onChange={(e) => setSoftToken(e.target.value)}
                   className="w-full outline-none text-[15px] font-medium text-gray-900 bg-transparent placeholder:text-gray-400"
                 />
               </div>
