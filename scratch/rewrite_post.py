@@ -1,33 +1,11 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import os
 
-export const dynamic = 'force-dynamic';
+file_path = "src/app/api/admin/users/route.ts"
 
-const supabaseAdmin = createClient(
-  (process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'),
-  (process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder')
-);
+with open(file_path, "r") as f:
+    content = f.read()
 
-export async function GET(request: Request) {
-  try {
-    // In a real app, verify the request has a valid admin session token here.
-    // For now, we use the service role key to fetch all users bypassing RLS.
-    const { data: users, error } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .order('first_name');
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ users });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
-  }
-}
-
-export async function POST(request: Request) {
+new_post = """export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { email, generated_pin, ...profileData } = body;
@@ -78,4 +56,13 @@ export async function POST(request: Request) {
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
   }
-}
+}"""
+
+# Replace the old POST block
+import re
+new_content = re.sub(r'export async function POST\(request: Request\) \{.*', new_post, content, flags=re.DOTALL)
+
+with open(file_path, "w") as f:
+    f.write(new_content)
+
+print("Updated POST route.")

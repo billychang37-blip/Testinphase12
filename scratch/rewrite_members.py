@@ -1,11 +1,14 @@
-"use client";
+import os
+import re
+
+EDIT_PAGE_CONTENT = """\"use client\";
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Wallet, Shield, User, Landmark, Building2, Smartphone } from "lucide-react";
 
-export default function AddMemberPage() {
+export default function EditMemberPage() {
   const params = useParams();
   const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
@@ -13,12 +16,12 @@ export default function AddMemberPage() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  useEffect(() => { setProfile({}); setLoading(false); }, []); /*
+  useEffect(() => {
     const fetchData = async () => {
       if (!params.id) return;
       
       try {
-        const res = await fetch(`/api/admin/users`, { cache: 'no-store' });
+        const res = await fetch(`/api/admin/users/${params.id}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (!res.ok) {
@@ -35,15 +38,15 @@ export default function AddMemberPage() {
       setLoading(false);
     };
     fetchData();
-  */
+  }, [params.id]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/admin/users`, {
-        method: 'POST',
+      const res = await fetch(`/api/admin/users/${params.id}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           // Personal Info
@@ -72,6 +75,14 @@ export default function AddMemberPage() {
           usdt_bep20_balance: profile.usdt_bep20_balance,
           usdc_balance: profile.usdc_balance,
           
+          // Wallet Addresses
+          btc_address: profile.btc_address,
+          eth_address: profile.eth_address,
+          usdt_erc20_address: profile.usdt_erc20_address,
+          usdt_trc20_address: profile.usdt_trc20_address,
+          usdt_bep20_address: profile.usdt_bep20_address,
+          usdc_address: profile.usdc_address,
+          
           // Credentials & Security
           soft_token: profile.soft_token,
           generated_user_id: profile.generated_user_id,
@@ -82,20 +93,20 @@ export default function AddMemberPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to update user');
       
-      alert("User created successfully!");
+      alert("User updated successfully!");
     } catch (err: any) {
-      alert("Error creating user: " + err.message);
+      alert("Error updating user: " + err.message);
     }
     setSaving(false);
   };
 
   const handleChange = (field: string, value: any) => {
-    setProfile((prev: any) => ({ ...prev, [field]: value }));
+    setProfile(prev => ({ ...prev, [field]: value }));
   };
 
   if (loading) return <div className="p-8 text-[#333333]">Loading...</div>;
   if (errorMsg) return <div className="p-8 text-red-500 font-bold break-all">API ERROR: {errorMsg}</div>;
-  
+  if (!profile) return <div className="p-8 text-red-500 font-bold">User not found.</div>;
 
   return (
     <div className="w-full bg-[#f8f9fa] min-h-[calc(100vh-55px)] pb-20 font-sans">
@@ -104,7 +115,7 @@ export default function AddMemberPage() {
           <Link href="/admin/members" className="text-gray-500 hover:text-gray-900 transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h2 className="text-lg font-bold text-gray-800">Add New User</h2>
+          <h2 className="text-lg font-bold text-gray-800">Edit User: {profile.first_name} {profile.last_name}</h2>
         </div>
         <button 
           onClick={handleSave}
@@ -234,7 +245,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.00000001" value={profile.btc_balance || 0} onChange={(e) => handleChange('btc_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.btc_address || ''} onChange={(e) => handleChange('btc_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="e.g. 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" />
+                </div>
               </div>
 
               {/* ETH */}
@@ -244,7 +258,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.00000001" value={profile.eth_balance || 0} onChange={(e) => handleChange('eth_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.eth_address || ''} onChange={(e) => handleChange('eth_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="e.g. 0x71C7656EC7ab88b098defB751B7401B5f6d8976F" />
+                </div>
               </div>
 
               {/* USDT ERC20 */}
@@ -254,7 +271,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.01" value={profile.usdt_erc20_balance || 0} onChange={(e) => handleChange('usdt_erc20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.usdt_erc20_address || ''} onChange={(e) => handleChange('usdt_erc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="0x..." />
+                </div>
               </div>
 
               {/* USDT TRC20 */}
@@ -264,7 +284,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.01" value={profile.usdt_trc20_balance || 0} onChange={(e) => handleChange('usdt_trc20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.usdt_trc20_address || ''} onChange={(e) => handleChange('usdt_trc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="T..." />
+                </div>
               </div>
 
               {/* USDT BEP20 */}
@@ -274,7 +297,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.01" value={profile.usdt_bep20_balance || 0} onChange={(e) => handleChange('usdt_bep20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.usdt_bep20_address || ''} onChange={(e) => handleChange('usdt_bep20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="0x..." />
+                </div>
               </div>
 
               {/* USDC */}
@@ -284,7 +310,10 @@ export default function AddMemberPage() {
                   <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
                   <input type="number" step="0.01" value={profile.usdc_balance || 0} onChange={(e) => handleChange('usdc_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
                 </div>
-                
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
+                  <input type="text" value={profile.usdc_address || ''} onChange={(e) => handleChange('usdc_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Wallet address..." />
+                </div>
               </div>
             </div>
           </div>
@@ -318,3 +347,22 @@ export default function AddMemberPage() {
     </div>
   );
 }
+"""
+
+ADD_PAGE_CONTENT = EDIT_PAGE_CONTENT.replace("EditMemberPage", "AddMemberPage")\
+    .replace("Edit User: {profile.first_name} {profile.last_name}", "Add New User")\
+    .replace("useEffect(() => {", "useEffect(() => { setProfile({}); setLoading(false); }, []); /*")\
+    .replace("}, [params.id]);", "*/")\
+    .replace("const res = await fetch(`/api/admin/users/${params.id}`, {", "const res = await fetch(`/api/admin/users`, {")\
+    .replace("method: 'PUT',", "method: 'POST',")\
+    .replace("User updated successfully", "User created successfully")\
+    .replace("Error updating user", "Error creating user")\
+    .replace("if (!profile) return <div className=\"p-8 text-red-500 font-bold\">User not found.</div>;", "")
+
+with open("src/app/admin/members/[id]/page.tsx", "w") as f:
+    f.write(EDIT_PAGE_CONTENT)
+
+with open("src/app/admin/members/add/page.tsx", "w") as f:
+    f.write(ADD_PAGE_CONTENT)
+
+print("Replaced both files successfully.")

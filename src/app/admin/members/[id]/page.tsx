@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Save, Wallet, Shield, User, Landmark, Building2, Smartphone } from "lucide-react";
 
 export default function EditMemberPage() {
   const params = useParams();
@@ -11,8 +11,6 @@ export default function EditMemberPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deposits, setDeposits] = useState<any[]>([]);
-  const [transfers, setTransfers] = useState<any[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,11 +27,6 @@ export default function EditMemberPage() {
           setProfile(data.profile);
         } else {
           setErrorMsg('Profile data is missing');
-        }
-        
-        if (data.transactions) {
-          setDeposits(data.transactions.filter((t: any) => t.type === 'deposit'));
-          setTransfers(data.transactions.filter((t: any) => t.type === 'transfer' || t.type === 'crypto_transfer' || t.type === 'withdrawal'));
         }
       } catch (err: any) {
         console.error(err);
@@ -53,15 +46,36 @@ export default function EditMemberPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: profile.email,
+          // Personal Info
           first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: profile.email,
           phone: profile.phone,
-          status: profile.status,
           country: profile.country,
-          state: profile.state,
-          recovery_phrase: profile.recovery_phrase,
-          transfer_fee: profile.transfer_fee,
-          swift_pin: profile.swift_pin
+          address: profile.address,
+          dob: profile.dob,
+          
+          // Account Info
+          status: profile.status,
+          account_type: profile.account_type,
+          currency: profile.currency,
+          account_number: profile.account_number,
+          kyc_status: profile.kyc_status,
+          
+          // Balances
+          wallet_balance: profile.wallet_balance,
+          savings_balance: profile.savings_balance,
+          btc_balance: profile.btc_balance,
+          eth_balance: profile.eth_balance,
+          usdt_erc20_balance: profile.usdt_erc20_balance,
+          usdt_trc20_balance: profile.usdt_trc20_balance,
+          usdt_bep20_balance: profile.usdt_bep20_balance,
+          usdc_balance: profile.usdc_balance,
+          
+          // Credentials & Security
+          soft_token: profile.soft_token,
+          generated_user_id: profile.generated_user_id,
+          generated_pin: profile.generated_pin,
         })
       });
       
@@ -75,349 +89,231 @@ export default function EditMemberPage() {
     setSaving(false);
   };
 
-  const generateRecoveryPhrase = () => {
-    const words = ["Cactus", "Nautical", "Zenith", "Terrarium", "Lilac", "Earring", "Seashell", "Carpet", "Icy", "Lively", "Grapes", "Twitter", "Ocean", "River", "Mountain", "Cloud", "Storm", "Breeze", "Flame", "Shadow"];
-    let phrase = [];
-    for (let i = 0; i < 12; i++) {
-      phrase.push(words[Math.floor(Math.random() * words.length)]);
-    }
-    setProfile({ ...profile, recovery_phrase: phrase.join(' ') });
+  const handleChange = (field: string, value: any) => {
+    setProfile((prev: any) => ({ ...prev, [field]: value }));
   };
 
   if (loading) return <div className="p-8 text-[#333333]">Loading...</div>;
+  if (errorMsg) return <div className="p-8 text-red-500 font-bold break-all">API ERROR: {errorMsg}</div>;
   if (!profile) return <div className="p-8 text-red-500 font-bold">User not found.</div>;
 
   return (
-    <div className="w-full bg-white min-h-[calc(100vh-130px)] shadow-sm relative pb-20 font-sans">
-      
-      {/* Top Tabs (Matching Reference) */}
-      <div className="flex border-b border-gray-300 pt-6 px-6">
-        <Link 
-          href="/admin/profile" 
-          className="bg-[#2196F3] text-white px-4 py-2 text-[13px] font-bold tracking-wide uppercase border border-[#2196F3] hover:bg-[#1976D2] transition-colors"
+    <div className="w-full bg-[#f8f9fa] min-h-[calc(100vh-55px)] pb-20 font-sans">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Link href="/admin/members" className="text-gray-500 hover:text-gray-900 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h2 className="text-lg font-bold text-gray-800">Edit User: {profile.first_name} {profile.last_name}</h2>
+        </div>
+        <button 
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 bg-[#2196F3] text-white px-5 py-2 rounded font-bold hover:bg-[#1976D2] transition-colors shadow-sm disabled:opacity-50"
         >
-          Manage Admin Profile
-        </Link>
-        <Link 
-          href="/admin/members/add" 
-          className="bg-[#2196F3] text-white px-4 py-2 text-[13px] font-bold tracking-wide uppercase border-t border-b border-[#2196F3] hover:bg-[#1976D2] transition-colors"
-        >
-          Add New Users
-        </Link>
-        <Link 
-          href="/admin/members" 
-          className="bg-[#2196F3] text-white px-4 py-2 text-[13px] font-bold tracking-wide uppercase border border-[#2196F3] hover:bg-[#1976D2] transition-colors"
-        >
-          Manage Users
-        </Link>
+          <Save className="w-4 h-4" />
+          {saving ? 'Saving...' : 'Save Changes'}
+        </button>
       </div>
 
-      <div className="p-6">
-        <h2 className="text-[15px] font-bold text-[#333333] uppercase tracking-wide mb-8 flex items-center">
-          EDIT USER <span className="text-red-500 ml-1">-</span>
-        </h2>
-
-        <form onSubmit={handleSave}>
-          <div className="flex justify-between items-center mb-6">
-            <button type="button" className="bg-white border border-gray-300 px-4 py-2 rounded text-sm text-[#333333] hover:bg-gray-50 shadow-sm font-semibold">
-              Open User's Account
-            </button>
-            <button type="button" className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded text-sm font-semibold shadow-sm">
-              Delete
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 mb-8">
-            {/* Email */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Email : <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input 
-                  type="email" 
-                  value={profile.email || ''}
-                  onChange={(e) => setProfile({...profile, email: e.target.value})}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3]"
-                  required
-                />
-                <span className="absolute right-3 top-2.5 text-gray-400">👤</span>
+      <div className="p-6 max-w-7xl mx-auto">
+        <form onSubmit={handleSave} className="space-y-6">
+          
+          {/* Section 1: Personal Details */}
+          <div className="bg-white p-6 rounded shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3">
+              <User className="w-5 h-5 text-[#2196F3]" />
+              <h3 className="text-[15px] font-bold text-gray-800 uppercase tracking-wide">Personal Details</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">First Name</label>
+                <input type="text" value={profile.first_name || ''} onChange={(e) => handleChange('first_name', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Last Name</label>
+                <input type="text" value={profile.last_name || ''} onChange={(e) => handleChange('last_name', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Email Address</label>
+                <input type="email" value={profile.email || ''} onChange={(e) => handleChange('email', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Phone Number</label>
+                <input type="text" value={profile.phone || ''} onChange={(e) => handleChange('phone', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Date of Birth</label>
+                <input type="date" value={profile.dob || ''} onChange={(e) => handleChange('dob', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Country</label>
+                <input type="text" value={profile.country || ''} onChange={(e) => handleChange('country', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Address</label>
+                <input type="text" value={profile.address || ''} onChange={(e) => handleChange('address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
               </div>
             </div>
+          </div>
 
-            {/* Username */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Username : <span className="text-red-500">*</span>
-              </label>
-              <input 
-                type="text" 
-                value={profile.first_name || ''}
-                onChange={(e) => setProfile({...profile, first_name: e.target.value})}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3]"
-                required
-              />
+          {/* Section 2: Account & Status */}
+          <div className="bg-white p-6 rounded shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3">
+              <Landmark className="w-5 h-5 text-[#2196F3]" />
+              <h3 className="text-[15px] font-bold text-gray-800 uppercase tracking-wide">Account Configuration</h3>
             </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">Phone :</label>
-              <input 
-                type="text" 
-                value={profile.phone || ''}
-                onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3]"
-              />
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Status : <span className="text-red-500">*</span>
-              </label>
-              <select 
-                value={profile.status || 'Active'}
-                onChange={(e) => setProfile({...profile, status: e.target.value})}
-                className="w-full bg-[#EAEAEA] border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none"
-              >
-                <option value="Active">Active</option>
-                <option value="suspended">Suspended</option>
-                <option value="blocked">Blocked</option>
-              </select>
-            </div>
-
-            {/* Country */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">Country :</label>
-              <input 
-                type="text" 
-                value={profile.country || ''}
-                onChange={(e) => setProfile({...profile, country: e.target.value})}
-                className="w-full bg-[#EAEAEA] border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none"
-              />
-            </div>
-
-            {/* State */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">State :</label>
-              <input 
-                type="text" 
-                value={profile.state || ''}
-                onChange={(e) => setProfile({...profile, state: e.target.value})}
-                placeholder="Select State"
-                className="w-full bg-[#EAEAEA] border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none"
-              />
-            </div>
-
-            {/* Enable 2FA */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Enable 2FA : <span className="text-red-500">*</span>
-              </label>
-              <select 
-                className="w-full bg-[#EAEAEA] border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none"
-              >
-                <option>False</option>
-                <option>True</option>
-              </select>
-            </div>
-
-            {/* Recovery Phrase */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Recovery Phrase : <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <textarea 
-                  value={profile.recovery_phrase || ''}
-                  onChange={(e) => setProfile({...profile, recovery_phrase: e.target.value})}
-                  className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3] min-h-[60px]"
-                />
-                <button 
-                  type="button"
-                  onClick={generateRecoveryPhrase}
-                  className="absolute bottom-2 right-2 bg-[#666666] text-white text-[10px] px-2 py-1 rounded-sm uppercase tracking-wide font-bold"
-                >
-                  Generate
-                </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Account Number</label>
+                <input type="text" value={profile.account_number || ''} onChange={(e) => handleChange('account_number', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Account Type</label>
+                <select value={profile.account_type || ''} onChange={(e) => handleChange('account_type', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]">
+                  <option value="">Select Type</option>
+                  <option value="Checking">Checking Account</option>
+                  <option value="Savings">Savings Account</option>
+                  <option value="Business">Business Account</option>
+                  <option value="Offshore">Offshore Account</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Currency</label>
+                <input type="text" value={profile.currency || 'USD'} onChange={(e) => handleChange('currency', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" placeholder="e.g. USD, EUR, GBP" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Login Status</label>
+                <select value={profile.status || 'Active'} onChange={(e) => handleChange('status', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]">
+                  <option value="Active">Active</option>
+                  <option value="Suspended">Suspended</option>
+                  <option value="Blocked">Blocked</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">KYC Status</label>
+                <select value={profile.kyc_status || 'pending'} onChange={(e) => handleChange('kyc_status', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]">
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            {/* Bank Transfer Fee */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">
-                Bank Transfer Conversion Fee (%) <span className="text-red-500 text-[10px] font-normal">(Will override General Settings Fee)</span> :
-              </label>
-              <input 
-                type="number" 
-                value={profile.transfer_fee || 0}
-                onChange={(e) => setProfile({...profile, transfer_fee: e.target.value})}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3]"
-              />
+          {/* Section 3: Fiat Balances */}
+          <div className="bg-white p-6 rounded shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3">
+              <Building2 className="w-5 h-5 text-[#2196F3]" />
+              <h3 className="text-[15px] font-bold text-gray-800 uppercase tracking-wide">Fiat Balances</h3>
             </div>
-
-            {/* Swift Pin */}
-            <div>
-              <label className="block text-[#333333] text-[13px] font-bold mb-1">One Time Use Swift Pin :</label>
-              <input 
-                type="text" 
-                value={profile.swift_pin || 0}
-                onChange={(e) => setProfile({...profile, swift_pin: e.target.value})}
-                className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#2196F3]"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Available Balance ({profile.currency || 'USD'})</label>
+                <input type="number" step="0.01" value={profile.wallet_balance || 0} onChange={(e) => handleChange('wallet_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Savings Balance ({profile.currency || 'USD'})</label>
+                <input type="number" step="0.01" value={profile.savings_balance || 0} onChange={(e) => handleChange('savings_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono focus:border-[#2196F3]" />
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-center gap-4 mb-8">
-            <button 
-              type="submit"
-              disabled={saving}
-              className="bg-[#26B99A] hover:bg-[#1f997f] text-white px-12 py-2.5 rounded text-sm font-semibold shadow-sm"
-            >
-              {saving ? 'Saving...' : 'Submit'}
-            </button>
-            <button 
-              type="button"
-              onClick={() => router.back()}
-              className="bg-white border border-gray-300 px-12 py-2.5 rounded text-sm text-[#333333] hover:bg-gray-50 shadow-sm font-semibold"
-            >
-              Cancel
-            </button>
+          {/* Section 4: Crypto Settings */}
+          <div className="bg-white p-6 rounded shadow-sm border border-gray-100">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3">
+              <Wallet className="w-5 h-5 text-[#2196F3]" />
+              <h3 className="text-[15px] font-bold text-gray-800 uppercase tracking-wide">Crypto Balances & Wallet Addresses</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
+              
+              {/* BTC */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">Bitcoin (BTC)</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.00000001" value={profile.btc_balance || 0} onChange={(e) => handleChange('btc_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+
+              {/* ETH */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">Ethereum (ETH)</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.00000001" value={profile.eth_balance || 0} onChange={(e) => handleChange('eth_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+
+              {/* USDT ERC20 */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">Tether (USDT - ERC20)</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.01" value={profile.usdt_erc20_balance || 0} onChange={(e) => handleChange('usdt_erc20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+
+              {/* USDT TRC20 */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">Tether (USDT - TRC20)</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.01" value={profile.usdt_trc20_balance || 0} onChange={(e) => handleChange('usdt_trc20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+
+              {/* USDT BEP20 */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">Tether (USDT - BEP20)</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.01" value={profile.usdt_bep20_balance || 0} onChange={(e) => handleChange('usdt_bep20_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+
+              {/* USDC */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded border border-gray-200">
+                <h4 className="font-bold text-sm text-gray-700">USDC</h4>
+                <div>
+                  <label className="block text-[#555] text-xs font-bold mb-1">Balance</label>
+                  <input type="number" step="0.01" value={profile.usdc_balance || 0} onChange={(e) => handleChange('usdc_balance', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-sm focus:border-[#2196F3]" />
+                </div>
+                
+              </div>
+            </div>
           </div>
+
+          {/* Section 5: Credentials & Security */}
+          <div className="bg-white p-6 rounded shadow-sm border border-gray-100 mb-8">
+            <div className="flex items-center gap-2 mb-6 border-b pb-3">
+              <Shield className="w-5 h-5 text-[#2196F3]" />
+              <h3 className="text-[15px] font-bold text-gray-800 uppercase tracking-wide">Credentials & Security</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Generated User ID</label>
+                <input type="text" value={profile.generated_user_id || ''} onChange={(e) => handleChange('generated_user_id', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1">Generated PIN / Password</label>
+                <input type="text" value={profile.generated_pin || ''} onChange={(e) => handleChange('generated_pin', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-[#2196F3]" />
+              </div>
+              <div>
+                <label className="block text-[#333] text-[13px] font-bold mb-1 flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-gray-500" /> Soft Token (OTP)
+                </label>
+                <input type="text" value={profile.soft_token || ''} onChange={(e) => handleChange('soft_token', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono focus:border-[#2196F3]" placeholder="6-digit token code" />
+              </div>
+            </div>
+          </div>
+          
         </form>
-
-        {/* Lower Tables */}
-        <div className="border border-[#2196F3] rounded bg-white p-4 mb-6 text-center text-lg font-bold text-[#2196F3] shadow-sm">
-          Withdrawable Balance: <span className="text-red-500">${Number(profile.wallet_balance || 0).toLocaleString()}</span>
-        </div>
-
-        {/* Deposits Table */}
-        <div className="border border-[#2196F3] rounded shadow-sm mb-6 overflow-hidden">
-          <div className="bg-[#2196F3] text-white px-4 py-2 font-bold tracking-wide flex items-center gap-2">
-            <div className="w-3 h-3 border border-white rounded-sm flex items-center justify-center text-[8px] bg-white text-[#2196F3]">■</div>
-            Deposits
-          </div>
-          <div className="h-1 bg-black w-full" />
-          <div className="h-1 bg-[#2196F3] w-full" />
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead>
-                <tr className="bg-[#F9F9F9] text-[#333333] font-bold text-xs uppercase border-b border-gray-200">
-                  <th className="p-2 text-center">#</th>
-                  <th className="p-2">Medium</th>
-                  <th className="p-2">Medium ID</th>
-                  <th className="p-2 text-center">Quantity</th>
-                  <th className="p-2 text-center">Status</th>
-                  <th className="p-2 text-center">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {deposits.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="p-3 text-center text-red-500 font-bold bg-[#ffe6e6] text-sm">—No Data Found—</td>
-                  </tr>
-                ) : (
-                  deposits.map((d, i) => (
-                    <tr key={d.id} className="border-b border-gray-200">
-                      <td className="p-2 text-center">{i+1}</td>
-                      <td className="p-2">{d.asset?.toUpperCase()}</td>
-                      <td className="p-2 text-xs text-gray-500">{d.id}</td>
-                      <td className="p-2 text-center">{d.amount}</td>
-                      <td className="p-2 text-center">{d.status}</td>
-                      <td className="p-2 text-center">{new Date(d.created_at).toLocaleDateString()}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Transfers Table */}
-        <div className="border border-[#2196F3] rounded shadow-sm mb-6 overflow-hidden">
-          <div className="bg-[#2196F3] text-white px-4 py-2 font-bold tracking-wide flex items-center gap-2">
-            <div className="w-3 h-3 border border-white rounded-sm flex items-center justify-center text-[8px] bg-white text-[#2196F3]">■</div>
-            Transfers
-          </div>
-          <div className="h-1 bg-black w-full" />
-          <div className="h-1 bg-[#2196F3] w-full" />
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead>
-                <tr className="bg-[#F9F9F9] text-[#333333] font-bold text-xs uppercase border-b border-gray-200">
-                  <th className="p-2 text-center">#</th>
-                  <th className="p-2">Medium</th>
-                  <th className="p-2">Medium ID</th>
-                  <th className="p-2 text-center">Quantity</th>
-                  <th className="p-2 text-center">Fee</th>
-                  <th className="p-2 text-center">Status</th>
-                  <th className="p-2 text-center">Date Requested</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transfers.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="p-3 text-center text-red-500 font-bold bg-[#ffe6e6] text-sm">—No Data Found—</td>
-                  </tr>
-                ) : (
-                  transfers.map((t, i) => (
-                    <tr key={t.id} className="border-b border-gray-200">
-                      <td className="p-2 text-center">{i+1}</td>
-                      <td className="p-2">{t.asset?.toUpperCase()}</td>
-                      <td className="p-2 text-xs text-gray-500">{t.id}</td>
-                      <td className="p-2 text-center">{t.amount}</td>
-                      <td className="p-2 text-center">0.00</td>
-                      <td className="p-2 text-center">{t.status}</td>
-                      <td className="p-2 text-center">{new Date(t.created_at).toLocaleDateString()}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* User Logins Table */}
-        <div className="border border-[#2196F3] rounded shadow-sm overflow-hidden mb-6">
-          <div className="bg-[#2196F3] text-white px-4 py-2 font-bold tracking-wide flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 border border-white rounded-sm flex items-center justify-center text-[8px] bg-white text-[#2196F3]">■</div>
-              User Logins <span className="font-normal text-xs ml-1">(Not required)</span>
-            </div>
-            <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-xs rounded-sm shadow-sm">
-              Clear All
-            </button>
-          </div>
-          <div className="h-1 bg-black w-full" />
-          <div className="h-1 bg-[#2196F3] w-full" />
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead>
-                <tr className="bg-[#F9F9F9] text-[#333333] font-bold text-xs uppercase border-b border-gray-200">
-                  <th className="p-2 text-center">#</th>
-                  <th className="p-2">IP Address</th>
-                  <th className="p-2">Country</th>
-                  <th className="p-2">Browser</th>
-                  <th className="p-2">Platform</th>
-                  <th className="p-2">Version Number</th>
-                  <th className="p-2 text-right">Last Access</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="p-2 text-center">1</td>
-                  <td className="p-2 font-mono text-blue-600">{profile.last_ip || 'N/A'}</td>
-                  <td className="p-2">{profile.last_country || 'N/A'}</td>
-                  <td className="p-2">Chrome</td>
-                  <td className="p-2">Windows</td>
-                  <td className="p-2">120.0</td>
-                  <td className="p-2 text-right">{profile.last_active_at ? new Date(profile.last_active_at).toLocaleString() : 'N/A'}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
     </div>
   );
