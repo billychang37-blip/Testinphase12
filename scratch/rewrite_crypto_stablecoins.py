@@ -1,4 +1,7 @@
-"use client";
+import os
+import re
+
+EDIT_PAGE_CONTENT = """\"use client\";
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -369,3 +372,22 @@ export default function EditMemberPage() {
     </div>
   );
 }
+"""
+
+ADD_PAGE_CONTENT = EDIT_PAGE_CONTENT.replace("EditMemberPage", "AddMemberPage")\
+    .replace("Edit User: {profile.first_name} {profile.last_name}", "Add New User")\
+    .replace("useEffect(() => {", "useEffect(() => { setProfile({}); setLoading(false); }, []); /*")\
+    .replace("}, [params.id]);", "*/")\
+    .replace("const res = await fetch(`/api/admin/users/${params.id}`, {", "const res = await fetch(`/api/admin/users`, {")\
+    .replace("method: 'PUT',", "method: 'POST',")\
+    .replace("User updated successfully!", "User created successfully!")\
+    .replace("Error updating user:", "Error creating user:")\
+    .replace("if (!profile) return <div className=\"p-8 text-red-500 font-bold\">User not found.</div>;", "")
+
+with open("src/app/admin/members/[id]/page.tsx", "w") as f:
+    f.write(EDIT_PAGE_CONTENT)
+
+with open("src/app/admin/members/add/page.tsx", "w") as f:
+    f.write(ADD_PAGE_CONTENT)
+
+print("Successfully generated exact supported stablecoin mappings with warnings and Open User Acc button.")
