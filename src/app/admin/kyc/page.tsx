@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ export default function AdminKycPage() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch('/api/admin/kyc');
+      const res = await fetch('/api/admin/kyc', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.requests) {

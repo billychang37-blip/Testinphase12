@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 const supabaseAdmin = createClient(
   (process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'),
   (process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder')
@@ -18,21 +20,23 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // We also need the user profiles, which requires a separate query or join if RLS is bypassed.
-    // Since we are admin, let's just fetch all profiles and map them.
-    const { data: users, error: userError } = await supabaseAdmin.auth.admin.listUsers();
-    if (userError) {
-      return NextResponse.json({ error: userError.message }, { status: 500 });
+    // Fetch profiles from the database instead of auth.users to ensure we get names
+    const { data: profiles, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, first_name, last_name, email');
+
+    if (profileError) {
+      return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
 
     const txsWithProfiles = data.map(tx => {
-      const user = users.users.find(u => u.id === tx.user_id);
+      const profile = profiles.find(p => p.id === tx.user_id);
       return {
         ...tx,
         profiles: {
-          first_name: user?.user_metadata?.first_name || 'Unknown',
-          last_name: user?.user_metadata?.last_name || 'User',
-          email: user?.email || 'No email'
+          first_name: profile?.first_name || '',
+          last_name: profile?.last_name || '',
+          email: profile?.email || ''
         }
       };
     });
