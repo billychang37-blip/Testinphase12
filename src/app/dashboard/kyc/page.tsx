@@ -27,9 +27,9 @@ export default function KYCPage() {
         router.push('/login');
         return;
       }
-      const status = user.user_metadata?.kyc_status;
-      if (status) {
-        setKycStatus(status);
+      const { data: profile } = await supabase.from('profiles').select('kyc_status').eq('id', user.id).single();
+      if (profile && profile.kyc_status) {
+        setKycStatus(profile.kyc_status);
       }
       setInitLoading(false);
     };

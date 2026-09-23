@@ -56,7 +56,7 @@ export default function SettingsPage() {
         .single();
 
       if (profileData) {
-        const merged = { ...profileData, ...session.user.user_metadata };
+        const merged = { ...session.user.user_metadata, ...profileData };
         setProfile(merged);
         setFirstName(merged.first_name || "");
         setLastName(merged.last_name || "");

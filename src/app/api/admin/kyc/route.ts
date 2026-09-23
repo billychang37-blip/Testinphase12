@@ -62,6 +62,9 @@ export async function POST(request: Request) {
       user_metadata: { kyc_status: newKycStatus }
     });
 
+    // ALSO update the profiles table so everything stays perfectly in sync!
+    await supabaseAdmin.from('profiles').update({ kyc_status: newKycStatus }).eq('id', userId);
+
     if (authError) {
       return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
     }

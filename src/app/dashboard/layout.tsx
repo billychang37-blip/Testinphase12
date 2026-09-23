@@ -35,7 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           router.push('/login?error=account_suspended');
           return;
         }
-        setProfile({ ...profileData, ...session.user.user_metadata });
+        setProfile({ ...session.user.user_metadata, ...profileData });
       }
       setIsLoading(false);
     };
