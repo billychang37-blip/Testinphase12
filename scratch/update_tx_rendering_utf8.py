@@ -1,52 +1,6 @@
-"use client";
+import re
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import {
-  Search,
-  Filter,
-  FileText,
-  Landmark,
-  ArrowDownToLine,
-  ArrowUpRight
-, KeyRound, User} from "lucide-react";
-
-export default function TransactionsPage() {
-  const [profile, setProfile] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("All");
-
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('currency')
-        .eq('id', session.user.id)
-        .single();
-        
-      setProfile(userProfile);
-
-      const { data: txs } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (txs) {
-        setTransactions(txs);
-      }
-      setLoading(false);
-    };
-    fetchTransactions();
-  }, []);
-
-  const currencySymbol = profile?.currency === 'EUR' ? '‘' : profile?.currency === 'GBP' ? '£' : '$';
-
-    const renderTransaction = (tx: any) => {
+new_render_transaction = '''  const renderTransaction = (tx: any) => {
     let icon;
     let bgClass;
     let textClass;
@@ -127,67 +81,24 @@ export default function TransactionsPage() {
         </div>
       </div>
     );
-  };
+  };'''
 
-  const filteredTransactions = transactions.filter((t: any) => {
-    if (filter === "All") return true;
-    if (filter === "Deposits") return t.type === "deposit";
-    if (filter === "Withdrawals") return t.type !== "deposit";
-    return true;
-  });
+def replace_render_tx(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
 
-  return (
-    <div className="px-4 md:px-10 pb-12 pt-6 w-full animate-in fade-in duration-500 flex justify-center">
-      <div className="w-full max-w-[1200px]">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-br from-[#FFF0F2] to-[#FFE5E8] rounded-[2rem] p-5 md:p-10 mb-8 relative overflow-hidden flex flex-col justify-center">
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-56 h-56 opacity-[0.03] pointer-events-none">
-            <svg viewBox="0 0 100 100" className="w-full h-full fill-[#E81C24]">
-              <path d="M50 0C22.4 0 0 22.4 0 50s22.4 50 50 50 50-22.4 50-50S77.6 0 50 0zm0 80c-16.6 0-30-13.4-30-30s13.4-30 30-30 30 13.4 30 30-13.4 30-30 30z"/>
-            </svg>
-          </div>
-          <div className="relative z-10">
-            <h1 className="text-[28px] font-bold text-gray-900 mb-2">Transaction History</h1>
-            <p className="text-gray-600 text-[15px] max-w-lg">
-              View and download your past financial activities, including deposits and transfers.
-            </p>
-          </div>
-        </div>
+    # Add KeyRound, User imports
+    content = re.sub(r'import \{(.*?)\} from "lucide-react";', r'import {\1, KeyRound, User} from "lucide-react";', content, count=1, flags=re.DOTALL)
 
-        {/* Filters */}
-        <div className="flex items-center space-x-3 mb-6">
-          {["All", "Deposits", "Withdrawals"].map((f) => (
-            <button 
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-5 py-2.5 rounded-xl text-[14px] font-bold transition-all ${filter === f ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'}`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+    # Replace renderTransaction
+    pattern = r'const renderTransaction = \(tx: any\) => \(.*?\s+<\/\w+>\s+\);\s+'
+    
+    content = re.sub(pattern, new_render_transaction + '\n\n  ', content, flags=re.DOTALL)
 
-        {/* Transactions List */}
-        <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-          {loading ? (
-            <div className="p-12 text-center text-gray-500 font-medium">Loading transactions...</div>
-          ) : filteredTransactions.length === 0 ? (
-            <div className="p-16 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-[18px] font-bold text-gray-900 mb-1">No transactions found</h3>
-              <p className="text-[14px] text-gray-500">You haven't made any {filter.toLowerCase()} yet.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-50">
-              {filteredTransactions.map(renderTransaction)}
-            </div>
-          )}
-        </div>
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(content)
 
-      </div>
-    </div>
-  );
-}
+replace_render_tx("src/app/dashboard/page.tsx")
+replace_render_tx("src/app/dashboard/transactions/page.tsx")
+
+print("Updated transaction rendering cleanly with UTF-8.")
