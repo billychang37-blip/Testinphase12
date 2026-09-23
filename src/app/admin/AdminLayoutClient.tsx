@@ -83,6 +83,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen bg-[#f4f6f9] font-sans min-w-[980px]">
+      <style>{`
+        /* Hide Smartsupp globally within Admin routes */
+        #smartsupp-widget-container, 
+        .smartsupp-widget, 
+        iframe[title*="Smartsupp"],
+        iframe[name^="smartsupp"],
+        div[id^="smartsupp"] {
+          display: none !important;
+        }
+      `}</style>
       
       {/* Sidebar - strict desktop */}
       {sidebarOpen && (
