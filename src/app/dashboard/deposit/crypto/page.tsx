@@ -49,13 +49,13 @@ export default function CryptoDepositPage() {
 
   const getAddress = (coin: string, network: string) => {
     if (coin === "USDT") {
-      if (network === "ERC20") return "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
-      if (network === "TRC20") return "TFdVrsUjZgyQHmMuwp1qwBGVxo8cmmhm6T";
-      if (network === "BEP20") return "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
+      if (network === "ERC20") return profile?.usdt_erc20_address || "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
+      if (network === "TRC20") return profile?.usdt_trc20_address || "TFdVrsUjZgyQHmMuwp1qwBGVxo8cmmhm6T";
+      if (network === "BEP20") return profile?.usdt_bep20_address || "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
     }
     if (coin === "USDC") {
-      if (network === "BEP20") return "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
-      if (network === "Solana") return "465xjijipUGSzW6xUiWzjk7PsZkgj3t22HkhnMm7PJvx";
+      if (network === "BEP20") return profile?.usdc_bep20_address || "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
+      if (network === "Solana") return profile?.usdc_solana_address || "465xjijipUGSzW6xUiWzjk7PsZkgj3t22HkhnMm7PJvx";
     }
     return "0xE6bbb7D8A441C4212678188A77Af9701241CC65E";
   };

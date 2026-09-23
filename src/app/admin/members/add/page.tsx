@@ -269,7 +269,7 @@ export default function AddMemberPage() {
                   </div>
                   <div>
                     <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
-                    <input type="text" value={profile.usdt_erc20_address || ''} onChange={(e) => handleChange('usdt_erc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="0x..." />
+                    <input type="text" value={profile.usdt_erc20_address || ''} onChange={(e) => handleChange('usdt_erc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Default: 0xE6bbb7D8A..." />
                   </div>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function AddMemberPage() {
                   </div>
                   <div>
                     <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
-                    <input type="text" value={profile.usdt_trc20_address || ''} onChange={(e) => handleChange('usdt_trc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="T..." />
+                    <input type="text" value={profile.usdt_trc20_address || ''} onChange={(e) => handleChange('usdt_trc20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Default: TFdVrsUjZgy..." />
                   </div>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export default function AddMemberPage() {
                   </div>
                   <div>
                     <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
-                    <input type="text" value={profile.usdt_bep20_address || ''} onChange={(e) => handleChange('usdt_bep20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="0x..." />
+                    <input type="text" value={profile.usdt_bep20_address || ''} onChange={(e) => handleChange('usdt_bep20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Default: 0xE6bbb7D8A..." />
                   </div>
                 </div>
               </div>
@@ -314,7 +314,7 @@ export default function AddMemberPage() {
                   </div>
                   <div>
                     <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
-                    <input type="text" value={profile.usdc_bep20_address || ''} onChange={(e) => handleChange('usdc_bep20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="0x..." />
+                    <input type="text" value={profile.usdc_bep20_address || ''} onChange={(e) => handleChange('usdc_bep20_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Default: 0xE6bbb7D8A..." />
                   </div>
                 </div>
               </div>
@@ -329,7 +329,7 @@ export default function AddMemberPage() {
                   </div>
                   <div>
                     <label className="block text-[#555] text-xs font-bold mb-1">Deposit Wallet Address</label>
-                    <input type="text" value={profile.usdc_solana_address || ''} onChange={(e) => handleChange('usdc_solana_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Wallet address..." />
+                    <input type="text" value={profile.usdc_solana_address || ''} onChange={(e) => handleChange('usdc_solana_address', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 outline-none font-mono text-xs focus:border-[#2196F3]" placeholder="Default: 465xjijipUG..." />
                   </div>
                 </div>
               </div>
