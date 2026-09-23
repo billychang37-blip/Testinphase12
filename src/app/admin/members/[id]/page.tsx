@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Wallet, Shield, User, Landmark, Building2, Smartphone, ExternalLink, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Wallet, Shield, User, Landmark, Building2, Smartphone, AlertTriangle } from "lucide-react";
 
 export default function EditMemberPage() {
   const params = useParams();
@@ -115,13 +115,7 @@ export default function EditMemberPage() {
           <h2 className="text-lg font-bold text-gray-800">Edit User: {profile.first_name} {profile.last_name}</h2>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => window.open(`/login`, '_blank')}
-            className="flex items-center gap-2 bg-[#f0f0f0] text-gray-700 px-4 py-2 rounded font-bold hover:bg-gray-200 transition-colors border border-gray-300"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Open User Acc
-          </button>
+          
           <button 
             onClick={handleSave}
             disabled={saving}
